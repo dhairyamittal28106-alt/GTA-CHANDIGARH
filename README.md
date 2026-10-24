@@ -1,0 +1,65 @@
+# Chandigarh Sector 17 — 3D Browser Game
+
+A single-player, browser-based 3D exploration game set in a stylized, playable reconstruction of Chandigarh's Sector 17 plaza. Walk around the city centre, explore its landmarks and underpass, interact with shops, and drive a sedan. The project uses mapped OpenStreetMap roads and building footprints with hand-built game scenery.
+
+This is a game-scale reconstruction, not a 1:1 surveyed model or photogrammetry scan. Some landmarks, shop fronts, people, and traffic are authored or procedural representations.
+
+## Run locally
+
+Requirements: Node.js 20.19+ or 22.12+ and npm.
+
+```sh
+npm install
+npm run dev
+```
+
+Vite prints the local URL (usually `http://localhost:5173`). For a production build and local preview:
+
+```sh
+npm run build
+npm run preview
+```
+
+`npm run lint` runs Oxlint.
+
+## Controls
+
+| Input | Action |
+| --- | --- |
+| W / A / S / D or arrow keys | Walk; steer and accelerate while driving |
+| Shift | Sprint |
+| Space | Jump |
+| E | Interact with nearby landmarks, shops, and stalls |
+| F | Enter or leave the nearby sedan |
+| V | Cycle vehicle camera views |
+| H | Honk while driving |
+| Mouse drag / pointer lock | Look around |
+| Click the minimap | Set a walking waypoint |
+| Day / Sunset / Night controls | Change lighting and night-time scene details |
+| Esc | Pause or resume |
+
+Additional interface buttons open character customization, shopping, and photo/postcard features. Their availability can depend on being near the relevant location.
+
+## Current gameplay
+
+- Walkable plaza with keyboard movement, jumping, camera follow, and waypoint navigation.
+- Building-footprint collision from mapped OSM geometry, broad-phase collision for authored scene meshes, and moving collision bounds for pedestrians and traffic. Movement slides along clear wall edges.
+- Driveable sedan, moving road traffic, and scooters.
+- Day, sunset, and night scene modes; Sector 17 landmarks, shopfronts, plaza pedestrians, lighting, fountain, and an underground passage reconstruction.
+- Character customization, simple interactions, procedural audio, and postcard capture.
+
+## Technology and project layout
+
+- React 19, TypeScript, Vite 8
+- Three.js with React Three Fiber and Drei
+- Zustand for local game state
+- `src/App.tsx`: game scene, controls, player, and traffic
+- `src/components/`: environment, characters, collision, UI, and interaction systems
+- `public/sector17-osm.json`: local road and building-footprint data
+- `public/models/`: character and vehicle GLB models
+
+## Map data and assets
+
+The map data is derived from OpenStreetMap contributors and is available under the [Open Database License (ODbL)](https://www.openstreetmap.org/copyright). The local map is centered near Sector 17 City Centre (approximately 30.74105° N, 76.77902° E). Preserve the attribution and ODbL notice when redistributing derived map data.
+
+The 3D models are included in `public/models/`. Their source/license details should be retained with the asset files when known; this project does not claim affiliation with vehicle manufacturers or real businesses shown as shop references.
