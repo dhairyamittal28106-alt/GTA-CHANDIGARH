@@ -36,6 +36,7 @@ npm run preview
 | Mouse drag / pointer lock | Look around |
 | Click the minimap | Set a walking waypoint |
 | Day / Sunset / Night controls | Change lighting and night-time scene details |
+| Punjabi Radio | Start a six-song playlist; the next official YouTube video queues automatically |
 | Esc | Pause or resume |
 
 Additional interface buttons open character customization, shopping, and photo/postcard features. Their availability can depend on being near the relevant location.
@@ -47,6 +48,8 @@ Additional interface buttons open character customization, shopping, and photo/p
 - Driveable sedan, moving road traffic, and scooters.
 - Day, sunset, and night scene modes; Sector 17 landmarks, shopfronts, plaza pedestrians, lighting, fountain, and an underground passage reconstruction.
 - Character customization, simple interactions, procedural audio, and postcard capture.
+- Score Club entry and exit markers: step onto the pink circle outside or inside to move between the street and club floor.
+- Punjabi Radio playlist featuring Diljit Dosanjh, Yo Yo Honey Singh, Sunanda Sharma, Sidhu Moose Wala, Masoom Sharma, and Shubh. Tracks stream from their YouTube video embeds; audio is not bundled with the game.
 
 ## Technology and project layout
 

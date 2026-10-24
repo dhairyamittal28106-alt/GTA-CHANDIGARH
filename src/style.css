@@ -157,6 +157,183 @@ html, body, #root {
   backdrop-filter: blur(16px);
 }
 
+/* Punjabi radio player and sequential track list */
+.radio-shell {
+  position: relative;
+}
+
+.radio-toggle {
+  border-color: rgba(244, 114, 182, 0.55);
+  color: #fbcfe8;
+  background: rgba(131, 24, 67, 0.48);
+}
+
+.radio-panel {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: min(360px, calc(100vw - 32px));
+  max-height: calc(100vh - 110px);
+  overflow-y: auto;
+  padding: 14px;
+  border: 1px solid rgba(251, 113, 183, 0.35);
+  border-radius: 10px;
+  background: rgba(13, 18, 24, 0.96);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.58);
+  backdrop-filter: blur(18px);
+  z-index: 90;
+  pointer-events: auto;
+}
+
+.radio-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.radio-heading > div,
+.radio-track-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.radio-heading strong {
+  font: 700 12px var(--font-mono);
+  color: #f9a8d4;
+  letter-spacing: 0.12em;
+}
+
+.radio-heading span,
+.radio-note {
+  color: #9ca3af;
+  font-size: 10px;
+}
+
+.radio-close {
+  padding: 0 5px;
+  border: 0;
+  background: transparent;
+  color: #d1d5db;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.radio-idle {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  min-height: 84px;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #e5e7eb;
+  font-size: 11px;
+}
+
+.radio-idle span + span {
+  color: #9ca3af;
+}
+
+.radio-player iframe {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: 7px;
+  background: #05070a;
+}
+
+.radio-now-playing {
+  overflow: hidden;
+  margin: 8px 1px 11px;
+  color: #f9a8d4;
+  font: 9px var(--font-mono);
+  letter-spacing: 0.04em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.radio-youtube-link {
+  display: inline-block;
+  margin: 0 0 8px 1px;
+  color: #f9a8d4;
+  font: 9px var(--font-mono);
+  text-decoration: none;
+}
+
+.radio-youtube-link:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.radio-track-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.radio-track {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 10px;
+  padding: 8px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.035);
+  color: #e5e7eb;
+  text-align: left;
+  cursor: pointer;
+}
+
+.radio-track:hover,
+.radio-track.selected {
+  border-color: rgba(244, 114, 182, 0.42);
+  background: rgba(190, 24, 93, 0.2);
+}
+
+.radio-track-number {
+  color: #f472b6;
+  font: 10px var(--font-mono);
+}
+
+.radio-track-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.radio-track-copy strong {
+  overflow: hidden;
+  font-size: 11px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.radio-track-copy small {
+  color: #9ca3af;
+  font-size: 9px;
+}
+
+.radio-track-play {
+  color: #f9a8d4;
+  font: 9px var(--font-mono);
+}
+
+.radio-note {
+  margin: 10px 0 0;
+  line-height: 1.4;
+}
+
 /* ========================================================================= */
 /* QUEST & LANDMARK DRAWER                                                   */
 /* ========================================================================= */

@@ -217,9 +217,6 @@ export function ChandigarhVegetation({ night }: ChandigarhVegetationProps) {
             <cylinderGeometry args={[0.1, 0.12, 0.22, 10]} />
             <meshStandardMaterial color="#0077b6" emissive="#0077b6" emissiveIntensity={night ? 3 : 0.5} />
           </mesh>
-          {night && (
-            <pointLight position={[0, 0.4, 0]} color="#0077b6" intensity={15} distance={8} />
-          )}
         </group>
       </group>
     </group>

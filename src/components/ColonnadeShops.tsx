@@ -330,9 +330,6 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
               </mesh>
             ))}
           </group>
-          {night && (
-            <pointLight position={[0, 3.2, -1.5]} color="#ffcb69" intensity={25} distance={10} />
-          )}
         </group>
 
         {/* Sindhi Sweets */}
@@ -359,9 +356,6 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
             <boxGeometry args={[5.8, 1.0, 1.3]} />
             <meshStandardMaterial color="#e9d8a6" transparent opacity={0.7} />
           </mesh>
-          {night && (
-            <pointLight position={[0, 3.2, -1.5]} color="#fde047" intensity={25} distance={10} />
-          )}
         </group>
       </group>
 
@@ -427,9 +421,6 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
             <boxGeometry args={[4.8, 1.1, 1.2]} />
             <meshStandardMaterial color="#d90429" />
           </mesh>
-          {night && (
-            <pointLight position={[0, 3.4, -1.5]} color="#ffb703" intensity={30} distance={12} />
-          )}
         </group>
 
         {/* Hot Millions Fast Food */}
@@ -452,9 +443,6 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
             <boxGeometry args={[4, 2.6, 0.1]} />
             <meshStandardMaterial color="#1d3557" metalness={0.7} roughness={0.2} />
           </mesh>
-          {night && (
-            <pointLight position={[0, 3.4, -1.5]} color="#e63946" intensity={25} distance={10} />
-          )}
         </group>
       </group>
 
@@ -495,9 +483,6 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
               />
             </mesh>
           ))}
-          {night && (
-            <pointLight position={[0, 3.4, -1.5]} color="#f72585" intensity={25} distance={10} />
-          )}
         </group>
       </group>
 
@@ -564,9 +549,6 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
           />
         </mesh>
 
-        {night && (
-          <pointLight position={[0, 14.5, 0]} color="#fff3cc" intensity={35} distance={15} />
-        )}
       </group>
 
       {/* ================================================================= */}
@@ -651,9 +633,6 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
               </mesh>
             </group>
           ))}
-          {night && (
-            <pointLight position={[0, 3.0, 1.5]} color="#fef08a" intensity={25} distance={10} />
-          )}
         </group>
 
         {/* 2. PLANET FASHION SHOWROOM (Center Wing, X = 0, Video 01:30) */}
@@ -684,9 +663,6 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
               <meshStandardMaterial color={idx === 0 ? '#ffffff' : idx === 1 ? '#0284c7' : '#e2e8f0'} />
             </mesh>
           ))}
-          {night && (
-            <pointLight position={[0, 3.0, 1.5]} color="#fee2e2" intensity={25} distance={10} />
-          )}
         </group>
 
         {/* 3. UNITED COLORS OF BENETTON (Right Wing, X = 10, Video 01:34) */}
@@ -712,9 +688,6 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
               <meshStandardMaterial color={['#facc15', '#06b6d4', '#ec4899', '#10b981'][idx]} />
             </mesh>
           ))}
-          {night && (
-            <pointLight position={[0, 3.0, 1.5]} color="#dcfce7" intensity={25} distance={10} />
-          )}
         </group>
       </group>
 
@@ -781,9 +754,6 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
               roughness={0.2}
             />
           </mesh>
-          {night && (
-            <pointLight position={[0, 0, 0.5]} color="#f43f5e" intensity={25} distance={8} />
-          )}
         </group>
 
         {/* 3D Letters 'C H D' */}

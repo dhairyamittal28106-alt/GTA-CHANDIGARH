@@ -161,17 +161,6 @@ export function NeelamCinema({ night }: NeelamCinemaProps) {
               emissiveIntensity={night ? 3.5 : 0.4}
             />
           </mesh>
-          {night && (
-            <spotLight
-              position={[0, 0, 0]}
-              target-position={[0, -4, 0]}
-              angle={0.65}
-              penumbra={0.4}
-              intensity={16}
-              distance={8}
-              color="#ffeed1"
-            />
-          )}
         </group>
       ))}
 
@@ -198,9 +187,6 @@ export function NeelamCinema({ night }: NeelamCinemaProps) {
           toneMapped={false}
         />
       </mesh>
-      {night && (
-        <pointLight position={[0, 6.5, 18]} color="#ff2a3b" intensity={65} distance={24} decay={2} />
-      )}
 
       {/* Grand Entrance Steps in Terracotta/Sandstone */}
       <group position={[0, 0, 10]}>
@@ -256,9 +242,6 @@ export function NeelamCinema({ night }: NeelamCinemaProps) {
               emissiveIntensity={night ? 0.6 : 0.15}
             />
           </mesh>
-          {night && (
-            <pointLight position={[0, 1.8, 0.5]} color="#ffd699" intensity={18} distance={6} decay={2} />
-          )}
         </group>
       ))}
 

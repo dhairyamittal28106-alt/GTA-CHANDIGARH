@@ -154,13 +154,6 @@ export function OpenHandMonument({ night }: OpenHandProps) {
       </mesh>
 
       {/* Pedestal Uplighting */}
-      {night && (
-        <>
-          <pointLight position={[0, 0.8, 2.5]} color="#ffcb6b" intensity={25} distance={12} decay={2} />
-          <pointLight position={[0, 0.8, -2.5]} color="#ffcb6b" intensity={25} distance={12} decay={2} />
-          <pointLight position={[0, 9.5, 0]} color="#ffd27d" intensity={20} distance={14} decay={2} />
-        </>
-      )}
 
       {/* Protective Perimeter Railing / Bollards */}
       {Array.from({ length: 8 }, (_, i) => {

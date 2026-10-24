@@ -13,7 +13,7 @@ export function GraphicsEffects({ timeOfDay }: GraphicsEffectsProps) {
 
   // Dynamic bloom intensity based on night vs day
   const bloomIntensity = useMemo(() => {
-    return isNight ? 0.8 : isSunset ? 0.45 : 0.22
+    return isNight ? 0.42 : isSunset ? 0.36 : 0.22
   }, [isNight, isSunset])
 
   return (
@@ -24,7 +24,7 @@ export function GraphicsEffects({ timeOfDay }: GraphicsEffectsProps) {
         // presets triggers a suspended HDR fetch and can blank the Canvas on
         // slow/offline connections; the local lighting rig handles night.
         preset="city"
-        environmentIntensity={isNight ? 0.35 : isSunset ? 0.75 : 0.85}
+        environmentIntensity={isNight ? 0.12 : isSunset ? 0.75 : 0.85}
       />
 
       {/* Global Ground Ambient Occlusion Contact Shadows (Baked once with frames={1} to eliminate heavy per-frame GPU re-rendering lag) */}
@@ -49,20 +49,8 @@ export function GraphicsEffects({ timeOfDay }: GraphicsEffectsProps) {
         color={isNight ? '#64dfdf' : '#dcf8f6'}
       />
 
-      {/* Atmospheric Night Fireflies / Plaza Ambient Motes */}
-      {isNight && (
-        <Sparkles
-          count={75}
-          scale={[90, 4, 90]}
-          position={[0, 2.0, 0]}
-          size={3.5}
-          speed={0.2}
-          color="#ffd166"
-        />
-      )}
-
       {/* AAA Post-Processing Pipeline */}
-      <EffectComposer multisampling={2}>
+      <EffectComposer multisampling={0}>
         {/* Cinematic Luminous Glow for Neon Signs, Marquees, Streetlights & Water */}
         <Bloom
           luminanceThreshold={0.8}

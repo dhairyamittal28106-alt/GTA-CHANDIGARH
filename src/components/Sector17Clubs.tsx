@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { sound } from './AudioEngine'
@@ -6,6 +6,7 @@ import { sound } from './AudioEngine'
 interface Sector17ClubsProps {
   night: boolean
   playerPos?: { current: THREE.Vector3 }
+  onTeleport?: (x: number, z: number, yaw: number) => void
 }
 
 /**
@@ -19,7 +20,9 @@ interface Sector17ClubsProps {
  * - Pulsing subwoofers & VIP bottle service lounge
  * - Dynamic sound proximity (muffled bass outside -> roaring stereo inside)
  */
-export function Sector17Clubs({ night, playerPos }: Sector17ClubsProps) {
+export function Sector17Clubs({ night, playerPos, onTeleport }: Sector17ClubsProps) {
+  const [insideClub, setInsideClub] = useState(false)
+  const transitionLock = useRef(0)
   const discoBallRef = useRef<THREE.Group>(null)
   const lasersRef = useRef<THREE.Group>(null)
   const eqBarsRef = useRef<THREE.Group>(null)
@@ -112,8 +115,25 @@ export function Sector17Clubs({ night, playerPos }: Sector17ClubsProps) {
     []
   )
 
-  useFrame(({ clock }) => {
+  useFrame(({ clock }, dt) => {
     const t = clock.elapsedTime
+
+    // Step on the pink entry/exit pad to move through the decorative facade.
+    if (transitionLock.current > 0) transitionLock.current = Math.max(0, transitionLock.current - dt)
+    if (playerPos && transitionLock.current <= 0) {
+      const { x, z } = playerPos.current
+      const entryDistance = Math.hypot(x - 28.2, z + 2)
+      const exitDistance = Math.hypot(x - 32.6, z + 2)
+      if (!insideClub && entryDistance < 1.45) {
+        transitionLock.current = 1.2
+        setInsideClub(true)
+        onTeleport?.(34.2, -2, Math.PI / 2)
+      } else if (insideClub && exitDistance < 1.25) {
+        transitionLock.current = 1.2
+        setInsideClub(false)
+        onTeleport?.(26.4, -2, -Math.PI / 2)
+      }
+    }
 
     // 1. Dynamic audio proximity update
     if (playerPos) {
@@ -171,39 +191,52 @@ export function Sector17Clubs({ night, playerPos }: Sector17ClubsProps) {
   })
 
   return (
-    <group position={[38, 0, -2]} rotation={[0, -Math.PI / 2, 0]}>
+    <group position={[38, 0, -2]} rotation={[0, -Math.PI / 2, 0]} userData={{ sector17CollisionIgnore: true }}>
       {/* =================================================================== */}
       {/* A. EXTERIOR CLUB FACADE & MARQUEE                                   */}
       {/* =================================================================== */}
       <group position={[0, 0, 0]}>
-        {/* Main building block */}
-        <mesh position={[0, 4.2, 0]} castShadow receiveShadow>
-          <boxGeometry args={[18, 8.4, 14]} />
+        {/* Open shell: separate walls leave a real doorway and walkable room. */}
+        {[-8.8, 8.8].map(x => (
+          <mesh key={`club-side-${x}`} position={[x, 4.2, 0]} castShadow receiveShadow>
+            <boxGeometry args={[0.55, 8.4, 14.6]} />
+            <meshStandardMaterial color="#13171a" roughness={0.85} metalness={0.2} />
+          </mesh>
+        ))}
+        <mesh position={[0, 4.2, -7]} castShadow receiveShadow>
+          <boxGeometry args={[18, 8.4, 0.55]} />
           <meshStandardMaterial color="#13171a" roughness={0.85} metalness={0.2} />
         </mesh>
-
-        {/* Polished black granite front portico */}
-        <mesh position={[0, 4.4, 7.2]} castShadow receiveShadow>
-          <boxGeometry args={[18.4, 8.8, 0.6]} />
+        <mesh position={[0, 8.55, 0]} receiveShadow>
+          <boxGeometry args={[18.4, 0.5, 14.8]} />
+          <meshStandardMaterial color="#101416" roughness={0.7} metalness={0.25} />
+        </mesh>
+        {[-5.3, 5.3].map(x => (
+          <mesh key={`club-front-${x}`} position={[x, 4.2, 7.05]} castShadow receiveShadow>
+            <boxGeometry args={[7.4, 8.4, 0.6]} />
+            <meshStandardMaterial color="#0c0e10" roughness={0.3} metalness={0.5} />
+          </mesh>
+        ))}
+        <mesh position={[0, 6.3, 7.05]} castShadow receiveShadow>
+          <boxGeometry args={[3.2, 4.2, 0.6]} />
           <meshStandardMaterial color="#0c0e10" roughness={0.3} metalness={0.5} />
         </mesh>
 
         {/* Glowing Entrance Portal Frame */}
-        <mesh position={[0, 2.5, 7.6]}>
-          <boxGeometry args={[4.2, 4.6, 0.4]} />
-          <meshStandardMaterial
-            color="#ff007f"
-            emissive="#ff007f"
-            emissiveIntensity={night ? 0.8 : 0.25}
-          />
-        </mesh>
+        <group position={[0, 2.5, 7.6]}>
+          {[-1.9, 1.9].map(x => (
+            <mesh key={x} position={[x, 0, 0]}>
+              <boxGeometry args={[0.4, 4.6, 0.4]} />
+              <meshStandardMaterial color="#ff007f" emissive="#ff007f" emissiveIntensity={night ? 1.5 : 0.35} />
+            </mesh>
+          ))}
+          <mesh position={[0, 2.1, 0]}>
+            <boxGeometry args={[4.2, 0.4, 0.4]} />
+            <meshStandardMaterial color="#ff007f" emissive="#ff007f" emissiveIntensity={night ? 1.5 : 0.35} />
+          </mesh>
+        </group>
 
         {/* Entrance Doorway Cutout (Walk-through opening) */}
-        <mesh position={[0, 2.1, 7.7]}>
-          <boxGeometry args={[3.4, 4.0, 0.5]} />
-          <meshBasicMaterial color="#040608" />
-        </mesh>
-
         {/* Velvet Entrance Curtains */}
         <mesh position={[-1.4, 2.1, 7.8]} rotation={[0, 0.2, 0]}>
           <boxGeometry args={[0.7, 3.8, 0.1]} />
@@ -784,6 +817,28 @@ export function Sector17Clubs({ night, playerPos }: Sector17ClubsProps) {
             </mesh>
           </group>
         ))}
+      </group>
+
+      {/* Stand on the pink marker to enter; a matching marker inside exits. */}
+      <group position={[0, 0, 9.8]} visible={!insideClub}>
+        <mesh position={[0, 0.035, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <circleGeometry args={[1.35, 40]} />
+          <meshBasicMaterial color="#ff4fa3" transparent opacity={0.58} depthWrite={false} />
+        </mesh>
+        <mesh position={[0, 0.07, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[1.28, 0.075, 8, 40]} />
+          <meshStandardMaterial color="#ff83c1" emissive="#ff168f" emissiveIntensity={2.4} />
+        </mesh>
+      </group>
+      <group position={[0, 0, 5.4]} visible={insideClub}>
+        <mesh position={[0, 0.035, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <circleGeometry args={[1.15, 40]} />
+          <meshBasicMaterial color="#ff4fa3" transparent opacity={0.48} depthWrite={false} />
+        </mesh>
+        <mesh position={[0, 0.07, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+          <torusGeometry args={[1.08, 0.075, 8, 40]} />
+          <meshStandardMaterial color="#ff83c1" emissive="#ff168f" emissiveIntensity={2.4} />
+        </mesh>
       </group>
     </group>
   )

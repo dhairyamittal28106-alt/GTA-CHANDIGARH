@@ -29,6 +29,7 @@ import { useCharacterShopStore, type CharacterConfig } from './components/Charac
 import { ShoppingModal } from './components/ShoppingModal'
 import { CharacterStudioModal } from './components/CharacterStudioModal'
 import { ElanteMallModal } from './components/ElanteMallModal'
+import { PunjabiRadio } from './components/PunjabiRadio'
 
 const origin: Point = [30.74105, 76.77902]
 type Point = [number, number]
@@ -385,8 +386,6 @@ function FacadeLayer({ buildings, night }: { buildings: OSMWay[]; night: boolean
     shopMaterial.emissiveIntensity = night ? 0.35 : 0
     windowMaterial.emissive.set(night ? '#ffcf88' : '#000000')
     windowMaterial.emissiveIntensity = night ? 0.25 : 0
-    shopMaterial.needsUpdate = true
-    windowMaterial.needsUpdate = true
   }, [night, shopMaterial, windowMaterial])
 
   return (
@@ -614,7 +613,7 @@ function Plaza({ night = false }: { night?: boolean }) {
         [0, -42],
         [0, 42],
       ].map(([x, z], i) => (
-        <StreetLamp key={`lamp${i}`} x={x} z={z} night={night} />
+        <StreetLamp key={`lamp${i}`} x={x} z={z} night={night} lit={i % 2 === 0} />
       ))}
     </group>
   )
@@ -641,7 +640,7 @@ function Bench({ x, z, rotation }: { x: number; z: number; rotation: number }) {
   )
 }
 
-function StreetLamp({ x, z, night }: { x: number; z: number; night: boolean }) {
+function StreetLamp({ x, z, night, lit }: { x: number; z: number; night: boolean; lit: boolean }) {
   return (
     <group position={[x, 0, z]}>
       <mesh position={[0, 3.8, 0]} castShadow>
@@ -657,7 +656,7 @@ function StreetLamp({ x, z, night }: { x: number; z: number; night: boolean }) {
           emissiveIntensity={night ? 6 : 0.2}
         />
       </mesh>
-      {night && <pointLight position={[0, 7.2, 0]} color="#ffce7d" intensity={20} distance={18} decay={2} />}
+      {night && lit && <pointLight position={[0, 7.2, 0]} color="#ffce7d" intensity={14} distance={14} decay={2} />}
     </group>
   )
 }
@@ -917,6 +916,7 @@ function getGroundY(x: number, z: number): number {
 function Player({
   driving,
   position,
+  headingRequest,
   onSpeed,
   waypoint,
   onReachWaypoint,
@@ -925,6 +925,7 @@ function Player({
 }: {
   driving: boolean
   position: { current: THREE.Vector3 }
+  headingRequest: { current: number | null }
   onSpeed: (value: number) => void
   waypoint: { current: THREE.Vector3 | null }
   onReachWaypoint: () => void
@@ -951,7 +952,7 @@ function Player({
     const up = (e: KeyboardEvent) => (keys.current[e.code] = false)
 
     const onMouseDown = (e: MouseEvent) => {
-      if ((e.target as HTMLElement).closest('button, .minimap-container, .hud-btn, .quest-drawer, .modal-card, .postcard-card, a, input, select')) return
+      if ((e.target as HTMLElement).closest('button, .minimap-container, .hud-btn, .quest-drawer, .modal-card, .postcard-card, .radio-panel, a, input, select')) return
       isMouseDown = true
       lastX = e.clientX
     }
@@ -989,6 +990,11 @@ function Player({
   useFrame((_, dt) => {
     dt = Math.min(dt, 0.05)
     const k = keys.current, p = position.current
+    if (headingRequest.current !== null) {
+      yaw.current = headingRequest.current
+      onYawChange(yaw.current)
+      headingRequest.current = null
+    }
 
     if (!driving) {
       let f = (k.KeyW || k.ArrowUp ? 1 : 0) - (k.KeyS || k.ArrowDown ? 1 : 0)
@@ -1234,6 +1240,8 @@ function DayNightRig({ timeOfDay }: { timeOfDay: TimeOfDay }) {
         ambient: 0.26,
         hemi: 0.54,
         sunIntensity: 1.3,
+        fogNear: 140,
+        fogFar: 360,
         sunPos: [-60, 65, -40] as [number, number, number],
       },
       sunset: {
@@ -1243,15 +1251,19 @@ function DayNightRig({ timeOfDay }: { timeOfDay: TimeOfDay }) {
         ambient: 0.34,
         hemi: 0.68,
         sunIntensity: 1.75,
+        fogNear: 100,
+        fogFar: 300,
         sunPos: [-80, 25, -20] as [number, number, number],
       },
       night: {
         bg: new THREE.Color('#0c131d'),
         fog: new THREE.Color('#141d2a'),
         sunColor: new THREE.Color('#7a8fb5'),
-        ambient: 0.24,
-        hemi: 0.34,
-        sunIntensity: 0.2,
+        ambient: 0.09,
+        hemi: 0.14,
+        sunIntensity: 0.025,
+        fogNear: 55,
+        fogFar: 220,
         sunPos: [-40, 50, -30] as [number, number, number],
       },
     }),
@@ -1266,7 +1278,11 @@ function DayNightRig({ timeOfDay }: { timeOfDay: TimeOfDay }) {
     if (scene.background instanceof THREE.Color) {
       scene.background.lerp(cfg.bg, t)
     }
-    haze.current?.color.lerp(cfg.fog, t)
+    if (haze.current) {
+      haze.current.color.lerp(cfg.fog, t)
+      haze.current.near = THREE.MathUtils.damp(haze.current.near, cfg.fogNear, 2, dt)
+      haze.current.far = THREE.MathUtils.damp(haze.current.far, cfg.fogFar, 2, dt)
+    }
     if (ambient.current) ambient.current.intensity = THREE.MathUtils.damp(ambient.current.intensity, cfg.ambient, 2, dt)
     if (hemi.current) hemi.current.intensity = THREE.MathUtils.damp(hemi.current.intensity, cfg.hemi, 2, dt)
     if (sun.current) {
@@ -1282,7 +1298,7 @@ function DayNightRig({ timeOfDay }: { timeOfDay: TimeOfDay }) {
       {timeOfDay !== 'night' ? (
         <Sky sunPosition={cfg.sunPos} turbidity={timeOfDay === 'sunset' ? 6 : 1.8} rayleigh={timeOfDay === 'sunset' ? 4 : 2.6} />
       ) : (
-        <Stars radius={120} depth={50} count={2500} factor={4} saturation={0} fade speed={1.2} />
+        <Stars radius={120} depth={50} count={700} factor={3} saturation={0} fade speed={0.15} />
       )}
       <ambientLight ref={ambient} intensity={0.3} />
       <hemisphereLight ref={hemi} args={['#c9e8fa', '#566b47', 0.72]} />
@@ -1302,7 +1318,9 @@ function DayNightRig({ timeOfDay }: { timeOfDay: TimeOfDay }) {
 function Scene({
   driving,
   onEnter,
+  onClubTeleport,
   position,
+  headingRequest,
   carPosition,
   onSpeed,
   timeOfDay,
@@ -1313,7 +1331,9 @@ function Scene({
 }: {
   driving: boolean
   onEnter: () => void
+  onClubTeleport: (x: number, z: number, yaw: number) => void
   position: { current: THREE.Vector3 }
+  headingRequest: { current: number | null }
   carPosition: { current: THREE.Vector3 }
   onSpeed: (value: number) => void
   timeOfDay: TimeOfDay
@@ -1328,7 +1348,7 @@ function Scene({
   return (
     <Canvas
       camera={{ position: [0, 4.15, -30], fov: 62 }}
-      dpr={[1, 1.5]}
+      dpr={[1, 1.25]}
       gl={{
         antialias: true,
         powerPreference: 'high-performance',
@@ -1349,7 +1369,7 @@ function Scene({
       <OpenHandMonument night={isNight} />
       <MusicalFountain night={isNight} active={fountainActive} playerPos={position.current} />
       <ColonnadeShops night={isNight} />
-      <Sector17Clubs night={isNight} playerPos={position} />
+      <Sector17Clubs night={isNight} playerPos={position} onTeleport={onClubTeleport} />
       <Sector17Showrooms night={isNight} />
       <Sector17Underpass night={isNight} playerPos={position} />
       <ChandigarhVegetation night={isNight} />
@@ -1372,6 +1392,7 @@ function Scene({
       <Player
         driving={driving}
         position={position}
+        headingRequest={headingRequest}
         onSpeed={onSpeed}
         waypoint={waypoint}
         onReachWaypoint={onReachWaypoint}
@@ -1389,6 +1410,7 @@ function Scene({
 export default function App() {
   const [driving, setDriving] = useState(false)
   const pos = useRef(new THREE.Vector3(0, 0, 12))
+  const headingRequest = useRef<number | null>(null)
   const car = useRef(new THREE.Vector3(44, 0, -48))
   const [hudPos, setHudPos] = useState({ player: new THREE.Vector3(0, 0, 12), car: new THREE.Vector3(44, 0, -48) })
   const [playerYaw, setPlayerYaw] = useState(0)
@@ -1554,18 +1576,14 @@ export default function App() {
     setWaypoint(null)
   }
 
-  const cycleTimeOfDay = () => {
-    const next: TimeOfDay = timeOfDay === 'day' ? 'sunset' : timeOfDay === 'sunset' ? 'night' : 'day'
-    setTimeOfDay(next)
-  }
-
   const toggleSound = () => {
     const muted = sound.toggleMute()
     setIsMuted(muted)
   }
 
-  const warpTo = (x: number, z: number) => {
+  const warpTo = (x: number, z: number, yaw?: number) => {
     pos.current.set(x, 0, z)
+    if (yaw !== undefined) headingRequest.current = yaw
     setHudPos({ player: pos.current.clone(), car: car.current.clone() })
     sound.playDiscoveryChime()
   }
@@ -1576,7 +1594,9 @@ export default function App() {
       <Scene
         driving={driving}
         onEnter={enterVehicle}
+        onClubTeleport={warpTo}
         position={pos}
+        headingRequest={headingRequest}
         carPosition={car}
         onSpeed={setSpeed}
         timeOfDay={timeOfDay}
@@ -1662,12 +1682,16 @@ export default function App() {
           <button id="btn-quests" className="hud-btn" onClick={() => setQuestDrawerOpen(v => !v)}>
             📋 {questDrawerOpen ? 'HIDE QUESTS' : 'QUESTS'}
           </button>
-          <button id="btn-time-of-day" className="hud-btn" onClick={cycleTimeOfDay}>
-            {timeOfDay === 'day' ? '☀️ DAY' : timeOfDay === 'sunset' ? '🌇 SUNSET' : '🌙 NIGHT'}
+          <button id="btn-time-of-day" className="hud-btn" onClick={() => setTimeOfDay(current => current === 'night' ? 'day' : 'night')}>
+            {timeOfDay === 'night' ? '☀️ DAY' : '🌙 NIGHT'}
+          </button>
+          <button id="btn-sunset" className="hud-btn" title="Set golden-hour sunset lighting" onClick={() => setTimeOfDay('sunset')}>
+            🌇 SUNSET
           </button>
           <button id="btn-audio" className="hud-btn" onClick={toggleSound}>
             {isMuted ? '🔇 MUTED' : '🔊 AUDIO'}
           </button>
+          <PunjabiRadio />
           <button id="btn-souvenir" className="hud-btn" onClick={() => setPostcardOpen(true)}>
             📸 SOUVENIR
           </button>
@@ -1706,7 +1730,7 @@ export default function App() {
               id="btn-warp-club"
               className="hud-btn"
               style={{ padding: '4px 8px', fontSize: '10px', border: '1px solid #f43f5e', color: '#fda4af', background: 'rgba(244, 63, 94, 0.18)' }}
-              onClick={() => warpTo(36, -2)}
+              onClick={() => warpTo(28.2, -2, Math.PI / 2)}
               title="Fast travel to Score Club 17 & Discotheque"
             >
               🪩 SCORE CLUB
