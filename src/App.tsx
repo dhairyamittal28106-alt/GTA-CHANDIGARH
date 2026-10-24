@@ -3,6 +3,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Sky, Stars, useAnimations, useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
 import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js'
+import { Analytics } from '@vercel/analytics/react'
 import './style.css'
 
 // Custom Sector 17 Components
@@ -1919,6 +1920,7 @@ export default function App() {
           </section>
         </div>
       )}
+      <Analytics />
     </main>
   )
 }
