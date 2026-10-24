@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Sky, Stars, useAnimations, useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
@@ -937,6 +937,8 @@ function Player({
   const cameraAimReady = useRef(false)
   const motion = useRef<MotionState['current']>('idle')
   const stepTimer = useRef(0)
+  const yawUiTimer = useRef(0)
+  const lastYawUi = useRef(0)
 
   useEffect(() => {
     let isMouseDown = false
@@ -950,6 +952,10 @@ function Player({
       }
     }
     const up = (e: KeyboardEvent) => (keys.current[e.code] = false)
+    const clearInput = () => {
+      keys.current = {}
+      isMouseDown = false
+    }
 
     const onMouseDown = (e: MouseEvent) => {
       if ((e.target as HTMLElement).closest('button, .minimap-container, .hud-btn, .quest-drawer, .modal-card, .postcard-card, .radio-panel, a, input, select')) return
@@ -964,12 +970,10 @@ function Player({
     const mouse = (e: MouseEvent) => {
       if (document.pointerLockElement) {
         yaw.current -= e.movementX * 0.0025
-        onYawChange(yaw.current)
       } else if (isMouseDown) {
         const dx = e.clientX - lastX
         lastX = e.clientX
         yaw.current -= dx * 0.004
-        onYawChange(yaw.current)
       }
     }
 
@@ -978,12 +982,16 @@ function Player({
     window.addEventListener('mousedown', onMouseDown)
     window.addEventListener('mouseup', onMouseUp)
     window.addEventListener('mousemove', mouse)
+    window.addEventListener('blur', clearInput)
+    document.addEventListener('visibilitychange', clearInput)
     return () => {
       window.removeEventListener('keydown', down)
       window.removeEventListener('keyup', up)
       window.removeEventListener('mousedown', onMouseDown)
       window.removeEventListener('mouseup', onMouseUp)
       window.removeEventListener('mousemove', mouse)
+      window.removeEventListener('blur', clearInput)
+      document.removeEventListener('visibilitychange', clearInput)
     }
   }, [driving, onYawChange])
 
@@ -992,7 +1000,6 @@ function Player({
     const k = keys.current, p = position.current
     if (headingRequest.current !== null) {
       yaw.current = headingRequest.current
-      onYawChange(yaw.current)
       headingRequest.current = null
     }
 
@@ -1010,14 +1017,12 @@ function Player({
           const desired = Math.atan2(dx, dz)
           const delta = THREE.MathUtils.euclideanModulo(desired - yaw.current + Math.PI, Math.PI * 2) - Math.PI
           yaw.current += THREE.MathUtils.clamp(delta, -2.5 * dt, 2.5 * dt)
-          onYawChange(yaw.current)
         }
       }
 
       const target = (k.ShiftLeft ? 8.5 : 4.5) * (f ? Math.sign(f) : 0)
       vel.current = THREE.MathUtils.damp(vel.current, target, 5, dt)
       yaw.current += s * dt * 2.2
-      onYawChange(yaw.current)
 
       if (k.Space && jumpY.current === 0) jumpV.current = 5.3
       jumpV.current -= 9.81 * dt
@@ -1060,7 +1065,6 @@ function Player({
       const steer = (k.KeyA ? 1 : 0) - (k.KeyD ? 1 : 0)
       vel.current = THREE.MathUtils.damp(vel.current, acc * 18, 2.1, dt)
       yaw.current += steer * Math.min(1, Math.abs(vel.current) / 5) * dt * 0.8
-      onYawChange(yaw.current)
 
       const nx = THREE.MathUtils.clamp(p.x + Math.sin(yaw.current) * vel.current * dt, -600, 600)
       const nz = THREE.MathUtils.clamp(p.z + Math.cos(yaw.current) * vel.current * dt, -550, 550)
@@ -1074,6 +1078,18 @@ function Player({
         if (!slideX && !slideZ) vel.current = 0
       }
       motion.current = 'idle'
+    }
+
+    // The minimap only needs a light HUD refresh; avoid React state updates on
+    // every render frame while the player turns or steers.
+    yawUiTimer.current += dt
+    if (yawUiTimer.current >= 0.1) {
+      const yawDelta = Math.abs(THREE.MathUtils.euclideanModulo(yaw.current - lastYawUi.current + Math.PI, Math.PI * 2) - Math.PI)
+      if (yawDelta > 0.008) {
+        lastYawUi.current = yaw.current
+        onYawChange(yaw.current)
+      }
+      yawUiTimer.current = 0
     }
 
     const currentSpeedKmh = driving ? Math.round(Math.abs(vel.current) * 3.6) : 0
@@ -1315,7 +1331,7 @@ function DayNightRig({ timeOfDay }: { timeOfDay: TimeOfDay }) {
   )
 }
 
-function Scene({
+const Scene = memo(function Scene({
   driving,
   onEnter,
   onClubTeleport,
@@ -1405,7 +1421,7 @@ function Scene({
       <SceneObstacleCapture />
     </Canvas>
   )
-}
+})
 
 export default function App() {
   const [driving, setDriving] = useState(false)
@@ -1435,7 +1451,7 @@ export default function App() {
     interactWithLandmark,
   } = useGameStore()
 
-  const [questDrawerOpen, setQuestDrawerOpen] = useState(true)
+  const [questDrawerOpen, setQuestDrawerOpen] = useState(false)
   const [postcardOpen, setPostcardOpen] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
 
@@ -1451,10 +1467,26 @@ export default function App() {
 
   // Distance to car
   const distToCar = hudPos.player.distanceTo(hudPos.car)
+  const drivingRef = useRef(driving)
+  const distanceToCarRef = useRef(distToCar)
+  useLayoutEffect(() => {
+    drivingRef.current = driving
+    distanceToCarRef.current = distToCar
+  }, [driving, distToCar])
 
   useEffect(() => {
     const timer = window.setInterval(
-      () => setHudPos({ player: pos.current.clone(), car: car.current.clone() }),
+      () => {
+        const player = pos.current
+        const vehicle = car.current
+        setHudPos(current => {
+          if (
+            current.player.distanceToSquared(player) < 0.01 &&
+            current.car.distanceToSquared(vehicle) < 0.01
+          ) return current
+          return { player: player.clone(), car: vehicle.clone() }
+        })
+      },
       100
     )
     return () => window.clearInterval(timer)
@@ -1468,18 +1500,20 @@ export default function App() {
     }
   }, [activeNotification, setNotification])
 
-  const enterVehicle = () => {
-    if (distToCar < 12) {
-      if (!driving) {
+  const enterVehicle = useCallback(() => {
+    if (distanceToCarRef.current < 12) {
+      if (!drivingRef.current) {
         pos.current.set(car.current.x, 0, car.current.z)
+        drivingRef.current = true
         setDriving(true)
       } else {
         // Step out beside the parked car instead of spawning inside its collider.
         pos.current.set(car.current.x + Math.cos(car.current.y) * 2.4, 0, car.current.z - Math.sin(car.current.y) * 2.4)
+        drivingRef.current = false
         setDriving(false)
       }
     }
-  }
+  }, [])
 
   // Character & Shopping Store
   const {
@@ -1564,29 +1598,29 @@ export default function App() {
 
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
-  }, [driving, nearbyLandmark, activeModal, turbanStudioOpen, postcardOpen, distToCar, interactWithLandmark, setModal, isDancing, setIsDancing, openShop, closeShop, toggleStudio, toggleElanteMall])
+  }, [nearbyLandmark, activeModal, turbanStudioOpen, postcardOpen, interactWithLandmark, setModal, isDancing, setIsDancing, openShop, closeShop, toggleStudio, toggleElanteMall, enterVehicle])
 
-  const setDestination = (p: THREE.Vector3) => {
+  const setDestination = useCallback((p: THREE.Vector3) => {
     waypointRef.current = p
     setWaypoint(p)
-  }
+  }, [])
 
-  const clearDestination = () => {
+  const clearDestination = useCallback(() => {
     waypointRef.current = null
     setWaypoint(null)
-  }
+  }, [])
 
-  const toggleSound = () => {
+  const toggleSound = useCallback(() => {
     const muted = sound.toggleMute()
     setIsMuted(muted)
-  }
+  }, [])
 
-  const warpTo = (x: number, z: number, yaw?: number) => {
+  const warpTo = useCallback((x: number, z: number, yaw?: number) => {
     pos.current.set(x, 0, z)
     if (yaw !== undefined) headingRequest.current = yaw
     setHudPos({ player: pos.current.clone(), car: car.current.clone() })
     sound.playDiscoveryChime()
-  }
+  }, [])
 
   return (
     <main className="game">
@@ -1809,15 +1843,9 @@ export default function App() {
           <span className="ctrl-tag"><kbd>SHIFT</kbd> SPRINT</span>
           <span className="ctrl-tag"><kbd>SPACE</kbd> JUMP</span>
           <span className="ctrl-tag"><kbd>E</kbd> INTERACT</span>
-          <span className="ctrl-tag"><kbd>C</kbd> CHARACTER</span>
-          <span className="ctrl-tag"><kbd>B</kbd> SHOPS</span>
-          <span className="ctrl-tag"><kbd>L</kbd> ELANTE MALL</span>
-          <span className="ctrl-tag"><kbd>G</kbd> DANCE</span>
           <span className="ctrl-tag"><kbd>F</kbd> CAR</span>
           {driving && <span className="ctrl-tag"><kbd>H</kbd> HORN</span>}
-          <span className="ctrl-tag"><kbd>T</kbd> PAGG</span>
           <span className="ctrl-tag"><kbd>V</kbd> CAMERA ({cameraMode === 0 ? '3RD' : cameraMode === 1 ? 'PORTRAIT' : cameraMode === 2 ? '1ST' : 'DRONE'})</span>
-          <span className="ctrl-tag"><kbd>P</kbd> PHOTO</span>
           <span className="ctrl-tag"><kbd>ESC</kbd> CLOSE / PAUSE</span>
         </div>
 

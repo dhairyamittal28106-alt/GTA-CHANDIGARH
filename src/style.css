@@ -53,7 +53,7 @@ html, body, #root {
   right: 24px;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   pointer-events: none;
   z-index: 60;
 }
@@ -108,9 +108,29 @@ html, body, #root {
 
 .top-actions {
   display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   align-items: center;
-  gap: 10px;
+  gap: 7px;
+  max-width: calc(100% - 340px);
+  max-height: min(30vh, 220px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
   pointer-events: auto;
+}
+
+.top-actions > * {
+  max-width: 100%;
+}
+
+.top-actions .hud-btn {
+  white-space: nowrap;
+}
+
+.warp-nav {
+  flex-wrap: wrap;
 }
 
 .hud-btn {
@@ -169,9 +189,9 @@ html, body, #root {
 }
 
 .radio-panel {
-  position: absolute;
-  top: calc(100% + 12px);
-  right: 0;
+  position: fixed;
+  top: 74px;
+  right: 24px;
   width: min(360px, calc(100vw - 32px));
   max-height: calc(100vh - 110px);
   overflow-y: auto;
@@ -530,7 +550,8 @@ html, body, #root {
 .controls-badge-group {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
+  max-width: calc(100vw - 270px);
   pointer-events: auto;
 }
 
@@ -570,6 +591,102 @@ html, body, #root {
   color: var(--accent-cyan);
   letter-spacing: 0.08em;
   box-shadow: 0 0 16px rgba(56, 189, 248, 0.2);
+}
+
+@media (max-width: 1100px) {
+  .top-nav {
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    gap: 10px;
+  }
+
+  .brand-section {
+    gap: 10px;
+    padding: 8px 12px;
+  }
+
+  .brand-sub {
+    display: none;
+  }
+
+  .top-actions {
+    max-width: calc(100% - 220px);
+    max-height: 24vh;
+  }
+
+  .hud-btn {
+    padding: 6px 9px;
+    font-size: 9px;
+  }
+}
+
+@media (max-width: 680px) {
+  .top-nav {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+
+  .brand-section {
+    align-self: flex-start;
+    padding: 7px 10px;
+  }
+
+  .brand-title {
+    font-size: 14px;
+  }
+
+  .brand-divider,
+  .brand-sub {
+    display: none;
+  }
+
+  .top-actions {
+    flex: 0 1 auto;
+    width: 100%;
+    max-width: 100%;
+    max-height: 112px;
+    justify-content: flex-start;
+    gap: 5px;
+  }
+
+  .radio-panel {
+    top: 132px;
+    right: 8px;
+  }
+
+  .warp-nav {
+    width: 100%;
+  }
+
+  .bottom-bar {
+    left: 8px;
+    right: 150px;
+    bottom: 8px;
+    align-items: flex-end;
+  }
+
+  .controls-badge-group {
+    max-width: 100%;
+    gap: 4px;
+  }
+
+  .ctrl-tag {
+    padding: 4px 6px;
+    font-size: 8px;
+  }
+
+  .minimap-container {
+    right: 8px;
+    bottom: 58px;
+    width: 132px;
+    height: 154px;
+  }
+
+  .minimap-svg {
+    height: 118px;
+  }
 }
 
 /* ========================================================================= */
