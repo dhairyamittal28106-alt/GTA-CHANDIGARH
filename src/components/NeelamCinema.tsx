@@ -11,7 +11,7 @@ export function NeelamCinema({ night }: NeelamCinemaProps) {
   const beton = useMemo(() => textures.getBetonBrutTexture(), [])
   const brick = useMemo(() => textures.getChandigarhBrickTexture(), [])
 
-  // Canvas textures for vintage movie posters & neon typography
+  
   const neelamSignTexture = useMemo(() => {
     const canvas = document.createElement('canvas')
     canvas.width = 1024
@@ -21,17 +21,17 @@ export function NeelamCinema({ night }: NeelamCinemaProps) {
     ctx.fillStyle = '#141212'
     ctx.fillRect(0, 0, 1024, 256)
 
-    // Red neon border
+    
     ctx.lineWidth = 12
     ctx.strokeStyle = '#e63946'
     ctx.strokeRect(16, 16, 992, 224)
 
-    // Gold inner pinstripe
+    
     ctx.lineWidth = 4
     ctx.strokeStyle = '#f4a261'
     ctx.strokeRect(34, 34, 956, 188)
 
-    // English "NEELAM"
+    
     ctx.font = '900 115px "DM Mono", Impact, sans-serif'
     ctx.textAlign = 'center'
     ctx.fillStyle = '#ff2a3b'
@@ -39,7 +39,7 @@ export function NeelamCinema({ night }: NeelamCinemaProps) {
     ctx.shadowBlur = 28
     ctx.fillText('NEELAM', 512, 132)
 
-    // Subtitle
+    
     ctx.font = '700 36px "DM Mono", sans-serif'
     ctx.fillStyle = '#fce4a6'
     ctx.shadowBlur = 12
@@ -95,7 +95,7 @@ export function NeelamCinema({ night }: NeelamCinemaProps) {
 
   return (
     <group position={[-42, 0, -34]} rotation={[0, Math.PI / 4, 0]}>
-      {/* Main Brutalist Building Mass with Béton Brut Formwork */}
+       
       <mesh position={[0, 7.5, 0]} castShadow receiveShadow>
         <boxGeometry args={[26, 15, 20]} />
         <meshStandardMaterial
@@ -107,7 +107,7 @@ export function NeelamCinema({ night }: NeelamCinemaProps) {
         />
       </mesh>
 
-      {/* Stepped Brick Parapet / Attic Tower */}
+       
       <mesh position={[0, 16.2, 0]} castShadow>
         <boxGeometry args={[22, 2.4, 16]} />
         <meshStandardMaterial
@@ -128,7 +128,7 @@ export function NeelamCinema({ night }: NeelamCinemaProps) {
         />
       </mesh>
 
-      {/* Deep Board-Marked Concrete Recesses */}
+       
       <mesh position={[0, 10, 10.05]} castShadow>
         <boxGeometry args={[24, 6, 0.4]} />
         <meshStandardMaterial
@@ -139,7 +139,7 @@ export function NeelamCinema({ night }: NeelamCinemaProps) {
         />
       </mesh>
 
-      {/* Cantilevered Canopy / Portico */}
+       
       <mesh position={[0, 4.6, 13.5]} castShadow receiveShadow>
         <boxGeometry args={[22, 0.65, 8]} />
         <meshStandardMaterial
@@ -150,7 +150,7 @@ export function NeelamCinema({ night }: NeelamCinemaProps) {
         />
       </mesh>
 
-      {/* Under-Canopy Recessed Downlights illuminating entrance steps */}
+       
       {[-6, -2, 2, 6].map(x => (
         <group key={`downlight-${x}`} position={[x, 4.25, 13.5]}>
           <mesh>
@@ -164,7 +164,7 @@ export function NeelamCinema({ night }: NeelamCinemaProps) {
         </group>
       ))}
 
-      {/* Slanted Concrete Support Brackets */}
+       
       {[-8, -2.8, 2.8, 8].map((x, i) => (
         <mesh key={i} position={[x, 3.8, 11]} rotation={[-0.4, 0, 0]} castShadow>
           <boxGeometry args={[0.55, 2.2, 3.8]} />
@@ -177,7 +177,7 @@ export function NeelamCinema({ night }: NeelamCinemaProps) {
         </mesh>
       ))}
 
-      {/* Illuminated NEELAM Marquee Sign */}
+       
       <mesh position={[0, 6.2, 16.8]}>
         <planeGeometry args={[16, 2.8]} />
         <meshStandardMaterial
@@ -188,7 +188,7 @@ export function NeelamCinema({ night }: NeelamCinemaProps) {
         />
       </mesh>
 
-      {/* Grand Entrance Steps in Terracotta/Sandstone */}
+       
       <group position={[0, 0, 10]}>
         {[0, 1, 2, 3].map(step => (
           <mesh key={step} position={[0, step * 0.22, step * 0.7]} receiveShadow>
@@ -203,7 +203,7 @@ export function NeelamCinema({ night }: NeelamCinemaProps) {
         ))}
       </group>
 
-      {/* Glass Entrance Doors & Pillars */}
+       
       <group position={[0, 2.2, 9.9]}>
         {[-8, -4, 0, 4, 8].map((x, i) => (
           <mesh key={`pillar-${i}`} position={[x, 0, 0]} castShadow>
@@ -227,7 +227,7 @@ export function NeelamCinema({ night }: NeelamCinemaProps) {
         ))}
       </group>
 
-      {/* Vintage Movie Poster Marquees */}
+       
       {[-8, 0, 8].map((x, i) => (
         <group key={`poster-${i}`} position={[x, 3.2, 17.4]}>
           <mesh castShadow>
@@ -245,7 +245,7 @@ export function NeelamCinema({ night }: NeelamCinemaProps) {
         </group>
       ))}
 
-      {/* Ticket Counter Booth */}
+       
       <group position={[11, 1.2, 12]}>
         <mesh castShadow receiveShadow>
           <boxGeometry args={[2.6, 2.4, 2.6]} />
@@ -260,7 +260,7 @@ export function NeelamCinema({ night }: NeelamCinemaProps) {
           <planeGeometry args={[1.8, 0.9]} />
           <meshStandardMaterial color="#1e293b" metalness={0.85} roughness={0.15} />
         </mesh>
-        {/* Ticket window glow */}
+         
         <mesh position={[0, 1.4, 1.32]}>
           <planeGeometry args={[2.2, 0.4]} />
           <meshStandardMaterial color="#d97706" emissive="#d97706" emissiveIntensity={night ? 1.5 : 0.3} />

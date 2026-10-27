@@ -20,7 +20,7 @@ export interface ShopItem {
 }
 
 export const SHOP_CATALOG: ShopItem[] = [
-  // NIKE
+  
   {
     id: 'nike_air_jordan_chicago',
     name: 'Air Jordan 1 Retro High "Chicago"',
@@ -55,7 +55,7 @@ export const SHOP_CATALOG: ShopItem[] = [
     tag: 'STREETWEAR',
   },
 
-  // ADIDAS
+  
   {
     id: 'adidas_samba_og',
     name: 'adidas Originals Samba OG Classic',
@@ -90,7 +90,7 @@ export const SHOP_CATALOG: ShopItem[] = [
     tag: 'RETRO CLASSIC',
   },
 
-  // REEBOK
+  
   {
     id: 'reebok_club_c_vintage',
     name: 'Reebok Club C 85 Vintage Chalk',
@@ -125,7 +125,7 @@ export const SHOP_CATALOG: ShopItem[] = [
     tag: '90s VIBES',
   },
 
-  // SKECHERS
+  
   {
     id: 'skechers_dlites_chunky',
     name: "Skechers D'Lites - Biggest Fan",
@@ -160,7 +160,7 @@ export const SHOP_CATALOG: ShopItem[] = [
     tag: 'COMFORT',
   },
 
-  // ACCESSORIES
+  
   {
     id: 'chd_aviator_sunglasses',
     name: 'Chandigarh Gedi-Route Aviators',
@@ -198,29 +198,29 @@ export interface CharacterConfig {
   bottomColor: string
   shoesColor: string
   hasShoppingBags: boolean
-  hasJhumkas: boolean // earrings for girl
+  hasJhumkas: boolean 
   hasDrink: boolean
 }
 
 interface CharacterShopState {
-  // Wallet
+  
   cash: number
-  inventory: string[] // list of owned ShopItem ids
+  inventory: string[] 
   equippedShoes: string | null
   equippedTop: string | null
   equippedAccessory: string | null
 
-  // Character config
+  
   charConfig: CharacterConfig
 
-  // UI state
+  
   activeShop: 'nike' | 'adidas' | 'reebok' | 'skechers' | null
   isStudioOpen: boolean
   isElanteMallOpen: boolean
   isCinemaOpen: boolean
   isDancing: boolean
 
-  // Actions
+  
   setArchetype: (archetype: CharacterArchetype) => void
   setCharConfig: (config: Partial<CharacterConfig>) => void
   openShop: (brand: 'nike' | 'adidas' | 'reebok' | 'skechers') => void
@@ -236,7 +236,7 @@ interface CharacterShopState {
 }
 
 export const useCharacterShopStore = create<CharacterShopState>((set, get) => ({
-  cash: 12000, // Starts with generous ₹12,000 for full shopping spree
+  cash: 12000, 
   inventory: ['nike_air_jordan_chicago'],
   equippedShoes: 'nike_air_jordan_chicago',
   equippedTop: null,
@@ -277,23 +277,23 @@ export const useCharacterShopStore = create<CharacterShopState>((set, get) => ({
       charConfig: {
         ...s.charConfig,
         archetype,
-        // Preset sensible defaults for each archetype
+        
         ...(archetype === 'girl'
           ? {
               hairstyle: 'girl_braid',
-              topColor: '#ec4899', // vibrant Rani Pink
-              bottomColor: '#fef08a', // Turmeric Yellow salwar
+              topColor: '#ec4899', 
+              bottomColor: '#fef08a', 
               shoesColor: '#f43f5e',
             }
           : archetype === 'man'
           ? {
               hairstyle: 'pompadour',
-              topColor: '#0284c7', // Royal Blue polo/jacket
-              bottomColor: '#1e293b', // Denim
+              topColor: '#0284c7', 
+              bottomColor: '#1e293b', 
               shoesColor: '#ffffff',
             }
           : {
-              topColor: '#ffffff', // Crisp white kurta
+              topColor: '#ffffff', 
               bottomColor: '#0f172a',
               shoesColor: '#b81d24',
             }),
@@ -353,7 +353,7 @@ export const useCharacterShopStore = create<CharacterShopState>((set, get) => ({
       cash: cash - item.price,
       inventory: [...inventory, item.id],
     })
-    // Auto-equip item
+    
     get().equipItem(item)
     return true
   },

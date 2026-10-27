@@ -35,7 +35,7 @@ interface GameState {
   hasCoffee: boolean
   hasCinemaTicket: boolean
 
-  // Actions
+  
   discoverLandmark: (id: string) => void
   completeQuest: (id: string) => void
   triggerFountainShow: () => void

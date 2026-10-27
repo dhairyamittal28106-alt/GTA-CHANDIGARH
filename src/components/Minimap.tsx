@@ -21,10 +21,10 @@ export function Minimap({
   waypoint,
   onSetWaypoint,
 }: MinimapProps) {
-  // Map coordinates: Plaza is [-70, 70] in X and Z
-  // Minimap size is 180x180 px, center is (90, 90)
+  
+  
   const MAP_SIZE = 180
-  const WORLD_RADIUS = 75 // meters mapped
+  const WORLD_RADIUS = 75 
   const toMapCoords = (wx: number, wz: number) => {
     const mx = 90 + (wx / WORLD_RADIUS) * 75
     const my = 90 + (wz / WORLD_RADIUS) * 75
@@ -56,14 +56,14 @@ export function Minimap({
         viewBox={`0 0 ${MAP_SIZE} ${MAP_SIZE}`}
         onClick={handleClick}
       >
-        {/* Radar Background */}
+         
         <circle cx="90" cy="90" r="88" fill="#1b2321" stroke="#3d4e48" strokeWidth="2" />
         <circle cx="90" cy="90" r="60" fill="none" stroke="#2a3832" strokeWidth="1" strokeDasharray="3 3" />
         <circle cx="90" cy="90" r="30" fill="none" stroke="#2a3832" strokeWidth="1" strokeDasharray="3 3" />
         <line x1="90" y1="2" x2="90" y2="178" stroke="#2a3832" strokeWidth="1" />
         <line x1="2" y1="90" x2="178" y2="90" stroke="#2a3832" strokeWidth="1" />
 
-        {/* Peripheral Road Ring */}
+         
         <rect
           x="18"
           y="18"
@@ -74,7 +74,7 @@ export function Minimap({
           stroke="#475569"
           strokeWidth="10"
         />
-        {/* Road center dash line */}
+         
         <rect
           x="18"
           y="18"
@@ -87,7 +87,7 @@ export function Minimap({
           strokeDasharray="4 4"
         />
 
-        {/* Central Pedestrian Plaza Tile Area */}
+         
         <rect
           x="38"
           y="38"
@@ -99,15 +99,15 @@ export function Minimap({
           strokeWidth="1.5"
         />
 
-        {/* Sector 17 Colonnades Outline */}
-        {/* South Colonnade */}
+         
+         
         <rect x="42" y="112" width="55" height="12" fill="#4a5568" rx="2" />
-        {/* East Colonnade */}
+         
         <rect x="112" y="45" width="12" height="60" fill="#4a5568" rx="2" />
-        {/* West Arcade */}
+         
         <rect x="42" y="45" width="12" height="40" fill="#4a5568" rx="2" />
 
-        {/* Landmark Markers */}
+         
         {landmarks.map(lm => {
           const pt = toMapCoords(lm.x, lm.z)
           const iconChar =
@@ -150,7 +150,7 @@ export function Minimap({
           )
         })}
 
-        {/* Waypoint Destination Pin */}
+         
         {wpCoord && (
           <g transform={`translate(${wpCoord.x}, ${wpCoord.y})`}>
             <circle r="6" fill="#ef4444" stroke="#ffffff" strokeWidth="1.5">
@@ -160,7 +160,7 @@ export function Minimap({
           </g>
         )}
 
-        {/* Car Marker */}
+         
         <g transform={`translate(${cCoord.x}, ${cCoord.y})`}>
           <rect
             x="-4"
@@ -177,17 +177,17 @@ export function Minimap({
           </text>
         </g>
 
-        {/* Player Marker with Heading Direction Arrow */}
+         
         <g
           transform={`translate(${pCoord.x}, ${pCoord.y}) rotate(${(-playerYaw * 180) / Math.PI})`}
         >
-          {/* Vision Cone */}
+           
           <polygon
             points="0,0 -16,-32 16,-32"
             fill="url(#visionGrad)"
             opacity="0.45"
           />
-          {/* Triangle Arrow */}
+           
           <polygon
             points="0,-8 6,6 0,3 -6,6"
             fill={isDriving ? '#38bdf8' : '#f97316'}
@@ -196,7 +196,7 @@ export function Minimap({
           />
         </g>
 
-        {/* Gradients */}
+         
         <defs>
           <linearGradient id="visionGrad" x1="0%" y1="100%" x2="0%" y2="0%">
             <stop offset="0%" stopColor="#f97316" stopOpacity="0.6" />

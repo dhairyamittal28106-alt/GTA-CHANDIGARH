@@ -72,7 +72,6 @@ export function CharacterStudioModal() {
   return (
     <div className="shop-overlay" onClick={() => toggleStudio(false)}>
       <div className="character-studio-modal" onClick={(e) => e.stopPropagation()}>
-        {/* Header */}
         <div className="studio-header">
           <div>
             <h2>CHANDIGARH CHARACTER & WARDROBE STUDIO</h2>
@@ -83,7 +82,6 @@ export function CharacterStudioModal() {
           </button>
         </div>
 
-        {/* Archetype Selector Cards */}
         <div className="archetype-grid">
           {archetypes.map((arch) => {
             const active = charConfig.archetype === arch.id
@@ -103,15 +101,12 @@ export function CharacterStudioModal() {
           })}
         </div>
 
-        {/* Detailed Customizer Controls */}
         <div className="studio-controls-pane">
-          {/* SARDAR JI CONTROLS */}
           {charConfig.archetype === 'sardar' && (
             <div className="studio-section">
               <h3>👑 PUNJABI TURBAN & BEARD (DSTAAR)</h3>
               <p className="section-subtitle">Select royal tying styles and authentic colors</p>
 
-              {/* Turban Style Presets */}
               <div className="preset-buttons-row">
                 {TURBAN_PRESETS.map((preset) => (
                   <button
@@ -127,7 +122,6 @@ export function CharacterStudioModal() {
                 ))}
               </div>
 
-              {/* Turban Color Grid */}
               <label className="input-label">Turban Fabric Color</label>
               <div className="color-swatch-row">
                 {colorPalette.map((col) => (
@@ -145,7 +139,6 @@ export function CharacterStudioModal() {
                 ))}
               </div>
 
-              {/* Kalgi & Beard Toggle */}
               <div className="toggle-row">
                 <label className="toggle-item">
                   <input
@@ -176,7 +169,6 @@ export function CharacterStudioModal() {
             </div>
           )}
 
-          {/* NORMAL MAN CONTROLS */}
           {charConfig.archetype === 'man' && (
             <div className="studio-section">
               <h3>✂️ URBAN HAIRSTYLE & GROOMING</h3>
@@ -209,7 +201,6 @@ export function CharacterStudioModal() {
             </div>
           )}
 
-          {/* GIRL CONTROLS */}
           {charConfig.archetype === 'girl' && (
             <div className="studio-section">
               <h3>🌸 CHANDIGARH GIRL STYLING</h3>
@@ -228,7 +219,6 @@ export function CharacterStudioModal() {
                 ))}
               </div>
 
-              {/* Outfit Collections */}
               <label className="input-label">Signature Outfit Style</label>
               <div className="preset-buttons-row">
                 {girlOutfits.map((outfit) => (
@@ -262,7 +252,6 @@ export function CharacterStudioModal() {
             </div>
           )}
 
-          {/* UNIVERSAL APPAREL & ACCESSORY CONTROLS */}
           <div className="studio-section">
             <h3>🕶️ ACCESSORIES & SHOPPING SWAG</h3>
             <div className="toggle-row">
@@ -294,7 +283,6 @@ export function CharacterStudioModal() {
               </label>
             </div>
 
-            {/* Upper Clothing Color Swatches */}
             <label className="input-label">Upper Clothing Color (Kurta / Top / Jacket)</label>
             <div className="color-swatch-row">
               {colorPalette.map((col) => (
@@ -308,7 +296,6 @@ export function CharacterStudioModal() {
               ))}
             </div>
 
-            {/* Currently Equipped Shoes Notice */}
             <div className="equipped-summary-box">
               <span>Equipped Footwear:</span>
               <strong>
@@ -323,7 +310,6 @@ export function CharacterStudioModal() {
           </div>
         </div>
 
-        {/* Footer */}
         <div className="studio-footer">
           <button className="confirm-btn" onClick={() => toggleStudio(false)}>
             APPLY STYLING & EXPLORE SECTOR 17

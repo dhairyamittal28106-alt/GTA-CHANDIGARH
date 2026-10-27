@@ -121,7 +121,7 @@ export const TurbanCustomizer: React.FC<Props> = ({
   return (
     <div className="turban-modal-overlay" onClick={onClose}>
       <div className="turban-modal-dialog" onClick={e => e.stopPropagation()}>
-        {/* Header */}
+         
         <div className="turban-modal-header">
           <div className="turban-title-row">
             <span className="turban-badge">HERITAGE CULTURE</span>
@@ -138,7 +138,7 @@ export const TurbanCustomizer: React.FC<Props> = ({
         </p>
 
         <div className="turban-modal-body">
-          {/* View Switcher Banner */}
+           
           <div className="turban-camera-bar">
             <span>👀 Tip: Switch to Portrait View to admire folds up close!</span>
             <button className="turban-btn-secondary" onClick={onCameraFront}>
@@ -146,7 +146,7 @@ export const TurbanCustomizer: React.FC<Props> = ({
             </button>
           </div>
 
-          {/* Presets Row */}
+           
           <div className="turban-section">
             <div className="turban-section-title">Iconic Punjabi Styles</div>
             <div className="turban-presets-grid">
@@ -175,7 +175,7 @@ export const TurbanCustomizer: React.FC<Props> = ({
             </div>
           </div>
 
-          {/* Style Selection */}
+           
           <div className="turban-section">
             <div className="turban-section-title">Dastar Tying Style</div>
             <div className="turban-style-tabs">
@@ -210,7 +210,7 @@ export const TurbanCustomizer: React.FC<Props> = ({
             </div>
           </div>
 
-          {/* Turban Fabric Color */}
+           
           <div className="turban-section">
             <div className="turban-section-title">
               Turban Cloth Color (Voile / Rubia)
@@ -230,7 +230,7 @@ export const TurbanCustomizer: React.FC<Props> = ({
             </div>
           </div>
 
-          {/* Fifty Under-wrap Color */}
+           
           <div className="turban-section">
             <div className="turban-section-title">
               Forehead "Fifty" Under-wrap Strip
@@ -250,7 +250,7 @@ export const TurbanCustomizer: React.FC<Props> = ({
             </div>
           </div>
 
-          {/* Traditional Accessories Toggle */}
+           
           <div className="turban-section">
             <div className="turban-section-title">Cultural Heritage Details</div>
             <div className="turban-toggles-row">
@@ -266,7 +266,7 @@ export const TurbanCustomizer: React.FC<Props> = ({
           </div>
         </div>
 
-        {/* Footer Actions */}
+         
         <div className="turban-modal-footer">
           <button className="turban-btn-souvenir" onClick={onOpenPostcard}>
             📸 Snap Souvenir Portrait

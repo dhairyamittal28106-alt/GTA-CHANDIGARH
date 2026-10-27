@@ -68,7 +68,7 @@ export function ElanteMallModal() {
   return (
     <div className="shop-overlay" onClick={() => toggleElanteMall(false)}>
       <div className="elante-modal" onClick={(e) => e.stopPropagation()}>
-        {/* Mall Header Banner */}
+         
         <div className="elante-header">
           <div className="elante-badge-tag">CHANDIGARH’S LARGEST SHOPPING DESTINATION</div>
           <div className="elante-title-row">
@@ -81,7 +81,7 @@ export function ElanteMallModal() {
             </button>
           </div>
 
-          {/* Navigation Tabs */}
+           
           <div className="elante-tabs">
             <button
               className={`elante-tab ${activeTab === 'atrium' ? 'active' : ''}`}
@@ -104,7 +104,7 @@ export function ElanteMallModal() {
           </div>
         </div>
 
-        {/* Tab 1: Retail Atrium & Brand Corridors */}
+         
         {activeTab === 'atrium' && (
           <div className="elante-body">
             <div className="atrium-banner">
@@ -117,7 +117,7 @@ export function ElanteMallModal() {
             </div>
 
             <div className="mall-stores-grid">
-              {/* Nike Boutique Card */}
+               
               <div className="mall-store-card nike-card">
                 <div className="mall-card-brand">NIKE STORE</div>
                 <h4>Air Jordan & Running Hub</h4>
@@ -133,7 +133,7 @@ export function ElanteMallModal() {
                 </button>
               </div>
 
-              {/* Adidas Originals Card */}
+               
               <div className="mall-store-card adidas-card">
                 <div className="mall-card-brand">ADIDAS ORIGINALS</div>
                 <h4>Trefoil & Streetwear Concourse</h4>
@@ -149,7 +149,7 @@ export function ElanteMallModal() {
                 </button>
               </div>
 
-              {/* Reebok Classic Card */}
+               
               <div className="mall-store-card reebok-card">
                 <div className="mall-card-brand">REEBOK HERITAGE</div>
                 <h4>Club C & Retro Fitness</h4>
@@ -165,7 +165,7 @@ export function ElanteMallModal() {
                 </button>
               </div>
 
-              {/* Skechers Comfort Card */}
+               
               <div className="mall-store-card skechers-card">
                 <div className="mall-card-brand">SKECHERS COMFORT</div>
                 <h4>Hands-Free Slip-Ins & D'Lites</h4>
@@ -184,10 +184,10 @@ export function ElanteMallModal() {
           </div>
         )}
 
-        {/* Tab 2: PVR Multiplex Cinema & Movie Screen */}
+         
         {activeTab === 'cinema' && (
           <div className="elante-body cinema-view">
-            {/* Giant Simulated Cinema Projection Screen */}
+             
             <div className="cinema-screen-box">
               <div className="screen-frame">
                 {isPlayingMovie ? (
@@ -222,7 +222,7 @@ export function ElanteMallModal() {
               </div>
             </div>
 
-            {/* Movie Selector Carousel & Details */}
+             
             <div className="cinema-details-pane">
               <div className="movie-selector-tabs">
                 {movies.map((m, idx) => (
@@ -276,7 +276,7 @@ export function ElanteMallModal() {
           </div>
         )}
 
-        {/* Tab 3: Food Court */}
+         
         {activeTab === 'foodcourt' && (
           <div className="elante-body">
             <div className="food-court-grid">

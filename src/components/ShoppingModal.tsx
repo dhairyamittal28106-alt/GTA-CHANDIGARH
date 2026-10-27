@@ -23,7 +23,7 @@ export function ShoppingModal() {
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'shoes' | 'apparel' | 'accessory'>('all')
   const [activeItem, setActiveItem] = useState<ShopItem | null>(null)
 
-  // Filter items by active shop brand
+  
   const brandItems = useMemo(() => {
     if (!activeShop) return []
     return SHOP_CATALOG.filter(
@@ -96,7 +96,7 @@ export function ShoppingModal() {
         onClick={(e) => e.stopPropagation()}
         style={{ borderColor: brandInfo.badgeColor }}
       >
-        {/* Header Bar */}
+         
         <div className="shop-header" style={{ background: brandInfo.heroBg }}>
           <div className="shop-header-title">
             <span
@@ -121,7 +121,7 @@ export function ShoppingModal() {
           </button>
         </div>
 
-        {/* Category Tabs */}
+         
         <div className="shop-tabs">
           {(['all', 'shoes', 'apparel', 'accessory'] as const).map((tab) => (
             <button
@@ -139,9 +139,9 @@ export function ShoppingModal() {
           ))}
         </div>
 
-        {/* Main Content: Item Grid + Preview Panel */}
+         
         <div className="shop-body">
-          {/* Left: Items Grid */}
+           
           <div className="shop-items-grid">
             {filteredItems.map((item) => {
               const owned = isPurchased(item)
@@ -159,7 +159,7 @@ export function ShoppingModal() {
                 >
                   <div className="shop-card-badge">{item.tag}</div>
 
-                  {/* Visual color swatch / preview silhouette */}
+                   
                   <div
                     className="shop-card-swatch"
                     style={{
@@ -188,7 +188,7 @@ export function ShoppingModal() {
             })}
           </div>
 
-          {/* Right: Selected Item Showcase & Buy/Equip CTA */}
+           
           {currentPreview && (
             <div className="shop-preview-pane">
               <div

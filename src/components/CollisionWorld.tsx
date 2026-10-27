@@ -23,7 +23,7 @@ function hasIgnoredAncestor(object: THREE.Object3D) {
   return false
 }
 
-/** Capture authored meshes into a lightweight spatial hash for broad-phase collision. */
+ 
 export function SceneObstacleCapture() {
   const scene = useThree(state => state.scene)
   const elapsed = useRef(0)
@@ -34,8 +34,8 @@ export function SceneObstacleCapture() {
   useFrame((_, dt) => {
     elapsed.current += dt
     scanClock.current += dt
-    // Static architecture loads asynchronously; rescan briefly during startup,
-    // then do one occasional pass for late-mounted landmarks.
+    
+    
     if (scanClock.current < (elapsed.current < 18 ? 1.25 : 12)) return
     scanClock.current = 0
     scene.updateMatrixWorld(true)
@@ -52,8 +52,8 @@ export function SceneObstacleCapture() {
       const width = box.max.x - box.min.x
       const depth = box.max.z - box.min.z
       const height = box.max.y - box.min.y
-      // Floors/roads are walkable surfaces; very large map masses use their
-      // accurate OSM footprints instead of coarse rectangular bounds.
+      
+      
       if (height < 0.48 || width > 36 || depth > 36 || box.max.y < 0.18 || box.min.y > 1.9) return
       if (box.max.x < -640 || box.min.x > 640 || box.max.z < -540 || box.min.z > 540) return
 

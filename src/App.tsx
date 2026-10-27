@@ -5,7 +5,7 @@ import * as THREE from 'three'
 import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js'
 import './style.css'
 
-// Custom Sector 17 Components
+
 import { NeelamCinema } from './components/NeelamCinema'
 import { OpenHandMonument } from './components/OpenHandMonument'
 import { MusicalFountain } from './components/MusicalFountain'
@@ -69,8 +69,8 @@ function circleTouchesPolygon(x: number, z: number, radius: number, points: THRE
 
 function blocked(x: number, z: number, radius: number, ignoreId?: string) {
   if (hitsSceneObstacle(x, z, radius, ignoreId)) return true
-  // Circle-versus-polygon collision keeps the full character radius outside
-  // mapped buildings, including along diagonal corners and narrow walls.
+  
+  
   const seen = new Set<Footprint>()
   const minGx = Math.floor((x - radius) / COLLISION_CELL)
   const maxGx = Math.floor((x + radius) / COLLISION_CELL)
@@ -141,8 +141,8 @@ function roadGeometry(ways: OSMWay[], mode: 'car' | 'walk' | 'edge' | 'mark') {
       const a = points[i], b = points[i + 1], dx = b[0] - a[0], dz = b[1] - a[1], len = Math.hypot(dx, dz)
       if (len < 0.1) continue
       const mx = (a[0] + b[0]) * 0.5, mz = (a[1] + b[1]) * 0.5
-      // Leave a clear opening over the playable underpass instead of drawing
-      // surface roads across its roofline.
+      
+      
       if (mx > -29 && mx < -7 && mz > -94 && mz < -14) continue
 
       if (mode === 'mark') {
@@ -566,12 +566,12 @@ function Plaza({ night = false }: { night?: boolean }) {
   const brick = useMemo(() => textures.getChandigarhBrickTexture(), [])
   return (
     <group>
-      {/* Ground and plaza paving stop at the open underpass slot. */}
+       
       <PlazaSlabs bounds={[-700, 700, -600, 600]} y={-0.12} thickness={0.18}>
         <meshStandardMaterial color="#4d6142" roughness={0.96} />
       </PlazaSlabs>
 
-      {/* Outer Plaza Terracotta / Sandstone Border */}
+       
       <PlazaSlabs bounds={[-80, 80, -65, 65]} y={-0.015} thickness={0.16}>
         <meshStandardMaterial
           color="#9c3826"
@@ -582,7 +582,7 @@ function Plaza({ night = false }: { night?: boolean }) {
         />
       </PlazaSlabs>
 
-      {/* Main Pedestrian Paved Plaza Deck with Dual-Tone Corbusier Tiles */}
+       
       <PlazaSlabs bounds={[-68, 68, -52, 52]} y={0.075} thickness={0.06}>
         <meshStandardMaterial
           color="#aaa394"
@@ -597,12 +597,12 @@ function Plaza({ night = false }: { night?: boolean }) {
       <PlazaTiles />
       <FestiveCanopy night={night} />
 
-      {/* Authentic Pierre Jeanneret Style Benches along Plaza Perimeters */}
+       
       {Array.from({ length: 14 }, (_, i) => (
         <Bench key={i} x={-48 + (i % 7) * 16} z={i < 7 ? -36 : 36} rotation={i < 7 ? 0 : Math.PI} />
       ))}
 
-      {/* Plaza Street Lamps */}
+       
       {[
         [-52, -38],
         [-52, 0],
@@ -622,12 +622,12 @@ function Plaza({ night = false }: { night?: boolean }) {
 function Bench({ x, z, rotation }: { x: number; z: number; rotation: number }) {
   return (
     <group position={[x, 0.5, z]} rotation={[0, rotation, 0]}>
-      {/* Wooden Slat Seat */}
+       
       <mesh castShadow>
         <boxGeometry args={[2.4, 0.12, 0.55]} />
         <meshStandardMaterial color="#734d26" roughness={0.7} />
       </mesh>
-      {/* Concrete V-Legs (Pierre Jeanneret Signature) */}
+       
       <mesh position={[-0.8, -0.25, 0]} rotation={[0, 0, 0.15]} castShadow>
         <boxGeometry args={[0.16, 0.45, 0.4]} />
         <meshStandardMaterial color="#8e897d" roughness={0.9} />
@@ -647,7 +647,7 @@ function StreetLamp({ x, z, night, lit }: { x: number; z: number; night: boolean
         <cylinderGeometry args={[0.09, 0.15, 7.6, 10]} />
         <meshStandardMaterial color="#343a38" metalness={0.55} roughness={0.36} />
       </mesh>
-      {/* Modernist Globe Lamp */}
+       
       <mesh position={[0, 7.5, 0]}>
         <sphereGeometry args={[0.32, 16, 12]} />
         <meshStandardMaterial
@@ -790,11 +790,11 @@ function Car({
   return (
     <group ref={car} position={[44, 0, -48]} onClick={onEnter} userData={{ sector17CollisionIgnore: true }}>
       <primitive object={model.scene} />
-      {/* Car Headlights & Beam */}
+       
       {night && (
         <group position={[0, 0.6, 2.0]}>
           <pointLight color="#fff3cc" intensity={25} distance={15} />
-          {/* Twin Headlight Spotlights */}
+           
           <spotLight
             position={[-0.65, 0, 0]}
             target-position={[-0.65, -0.5, 18]}
@@ -815,7 +815,7 @@ function Car({
           />
         </group>
       )}
-      {/* Taillights */}
+       
       {night && (
         <pointLight position={[0, 0.6, -2.1]} color="#ff1100" intensity={12} distance={6} />
       )}
@@ -898,7 +898,7 @@ function TrafficFleet() {
 }
 
 function getGroundY(x: number, z: number): number {
-  // Broad continuous ramps down to and back up from the Rose Garden underpass.
+  
   if (x >= -25.5 && x <= -10.5) {
     if (z <= -14 && z >= -27) {
       return THREE.MathUtils.mapLinear(z, -14, -27, 0, -3.2)
@@ -949,7 +949,7 @@ function Player({
 
     const down = (e: KeyboardEvent) => {
       keys.current[e.code] = true
-      // Car Horn
+      
       if (e.code === 'KeyH' && driving) {
         sound.playHorn()
       }
@@ -1073,7 +1073,7 @@ function Player({
 
       motion.current = Math.abs(vel.current) < 0.2 ? 'idle' : k.ShiftLeft ? 'run' : 'walk'
 
-      // Procedural Footstep audio
+      
       if (motion.current !== 'idle' && jumpY.current === 0) {
         stepTimer.current += dt
         const stepInterval = k.ShiftLeft ? 0.32 : 0.48
@@ -1085,8 +1085,8 @@ function Player({
 
       const currentGroundY = getGroundY(p.x, p.z)
       if (body.current) {
-        // Keep the pelvis anchored to the ground; gait bob is handled by the
-        // rig, so the whole character does not visibly hover between steps.
+        
+        
         body.current.position.set(p.x, currentGroundY + jumpY.current, p.z)
         body.current.rotation.y = yaw.current
       }
@@ -1110,8 +1110,8 @@ function Player({
       motion.current = 'idle'
     }
 
-    // The minimap only needs a light HUD refresh; avoid React state updates on
-    // every render frame while the player turns or steers.
+    
+    
     yawUiTimer.current += dt
     if (yawUiTimer.current >= 0.1) {
       const yawDelta = Math.abs(THREE.MathUtils.euclideanModulo(yaw.current - lastYawUi.current + Math.PI, Math.PI * 2) - Math.PI)
@@ -1135,32 +1135,32 @@ function Player({
     const currentGroundY = getGroundY(p.x, p.z)
     const target = new THREE.Vector3(p.x, currentGroundY + (driving ? 1.45 : 1.35), p.z)
     const underpassCamera = currentGroundY < -0.5
-    // Keep a recognisable over-the-shoulder view: modest height, enough
-    // downward pitch to read the avatar and the paving ahead together.
+    
+    
     const cameraRight = new THREE.Vector3(forward.z, 0, -forward.x)
     let offset = new THREE.Vector3(-forward.x * 5.7, underpassCamera ? 1.35 : 1.85, -forward.z * 5.7)
     offset.addScaledVector(cameraRight, 0.85)
 
     if (cameraMode === 1) {
-      // Front Portrait / Selfie / Close-up Turban Inspection directly at eye level
+      
       offset.set(forward.x * 1.35, driving ? 0.3 : 0.04, forward.z * 1.35)
       target.set(p.x, currentGroundY + (driving ? 1.35 : 1.58), p.z)
     } else if (cameraMode === 2) {
-      // First Person POV
+      
       offset.set(forward.x * 0.04, driving ? 1.15 : 0.08, forward.z * 0.04)
       target.set(p.x, currentGroundY + (driving ? 1.25 : 1.62), p.z)
       target.addScaledVector(forward, 10)
     } else if (cameraMode === 3) {
-      // Top-Down Drone / Corbusier Architectural Bird's Eye View
+      
       offset.set(0, 48, 0.1)
       target.set(p.x, 0, p.z)
     } else {
-      // Aim a little farther down the street so the avatar sits below centre.
+      
       target.addScaledVector(forward, driving ? 1.8 : 1.25)
     }
 
-    // Smooth both camera position and aim to avoid snaps when turning or
-    // crossing the underpass ramps.
+    
+    
     const camAlpha = 1 - Math.exp(-8.5 * Math.min(dt, 0.05))
     const lookTarget = target.clone()
     cam.position.lerp(lookTarget.clone().add(offset), camAlpha)
@@ -1446,11 +1446,11 @@ const Scene = memo(function Scene({
     >
       <DayNightRig timeOfDay={timeOfDay} />
 
-      {/* Core Ground, Roads & OSM Footprints */}
+       
       <Plaza night={isNight} />
       <MappedCity night={isNight} />
 
-      {/* Iconic Sector 17 Custom Landmarks */}
+       
       <NeelamCinema night={isNight} />
       <OpenHandMonument night={isNight} />
       <MusicalFountain night={isNight} active={fountainActive} playerPos={position.current} />
@@ -1461,11 +1461,11 @@ const Scene = memo(function Scene({
       <ChandigarhVegetation night={isNight} />
       <PlazaPigeons playerPos={position.current} />
 
-      {/* Traffic & Surroundings */}
+       
       <TrafficFleet />
       <PedestrianCrowd />
 
-      {/* Player and Car */}
+       
       <Suspense fallback={null}>
         <Car
           driving={driving}
@@ -1487,7 +1487,7 @@ const Scene = memo(function Scene({
         touchKeys={touchKeys}
       />
 
-      {/* Cinematic Post-Processing, Environment Reflections & Particle Mist */}
+       
       <GraphicsEffects timeOfDay={timeOfDay} />
       <SceneObstacleCapture />
     </Canvas>
@@ -1511,7 +1511,7 @@ export default function App() {
   const [waypoint, setWaypoint] = useState<THREE.Vector3 | null>(null)
   const waypointRef = useRef<THREE.Vector3 | null>(null)
 
-  // Game Store State
+  
   const {
     landmarks,
     quests,
@@ -1527,7 +1527,7 @@ export default function App() {
   const [postcardOpen, setPostcardOpen] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
 
-  // Nearby landmark detection for prompt
+  
   const nearbyLandmark = useMemo(() => {
     const p = hudPos.player
     for (const lm of landmarks) {
@@ -1537,7 +1537,7 @@ export default function App() {
     return null
   }, [hudPos.player, landmarks])
 
-  // Distance to car
+  
   const distToCar = hudPos.player.distanceTo(hudPos.car)
   const drivingRef = useRef(driving)
   const distanceToCarRef = useRef(distToCar)
@@ -1564,7 +1564,7 @@ export default function App() {
     return () => window.clearInterval(timer)
   }, [])
 
-  // Auto-dismiss notifications after 5 seconds
+  
   useEffect(() => {
     if (activeNotification) {
       const timer = window.setTimeout(() => setNotification(null), 5000)
@@ -1579,7 +1579,7 @@ export default function App() {
         drivingRef.current = true
         setDriving(true)
       } else {
-        // Step out beside the parked car instead of spawning inside its collider.
+        
         pos.current.set(car.current.x + Math.cos(car.current.y) * 2.4, 0, car.current.z - Math.sin(car.current.y) * 2.4)
         drivingRef.current = false
         setDriving(false)
@@ -1587,7 +1587,7 @@ export default function App() {
     }
   }, [])
 
-  // Character & Shopping Store
+  
   const {
     cash,
     openShop,
@@ -1602,59 +1602,59 @@ export default function App() {
     ;(window as unknown as { __charShopStore?: unknown }).__charShopStore = useCharacterShopStore.getState()
   }, [])
 
-  // Keyboard shortcut handlers
+  
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
-      // Vehicle Enter/Exit
+      
       if (e.code === 'KeyF') {
         enterVehicle()
       }
-      // Interact with Landmark
+      
       if (e.code === 'KeyE') {
         if (nearbyLandmark) {
           interactWithLandmark(nearbyLandmark.id)
           sound.playDiscoveryChime()
         }
       }
-      // Camera switch
+      
       if (e.code === 'KeyV') {
         setCameraMode(v => (v + 1) % 4)
       }
-      // Character & Wardrobe Studio [C]
+      
       if (e.code === 'KeyC') {
         setCameraMode(1)
         toggleStudio(true)
       }
-      // Shopping Boutiques [B]
+      
       if (e.code === 'KeyB') {
         openShop('nike')
       }
-      // Elante Mall & Multiplex Cinema [L]
+      
       if (e.code === 'KeyL') {
         toggleElanteMall(true)
       }
-      // Club Groove & Dance Mode [G]
+      
       if (e.code === 'KeyG') {
         setIsDancing(!isDancing)
         sound.playDiscoveryChime()
       }
-      // Turban / Pagg Studio
+      
       if (e.code === 'KeyT') {
         setTurbanStudioOpen(v => {
-          if (!v) setCameraMode(1) // switch to front portrait when opening
+          if (!v) setCameraMode(1) 
           return !v
         })
       }
-      // Photo Mode
+      
       if (e.code === 'KeyP') {
         setPostcardOpen(v => !v)
       }
-      // Mute audio
+      
       if (e.code === 'KeyM') {
         const muted = sound.toggleMute()
         setIsMuted(muted)
       }
-      // Pause
+      
       if (e.code === 'Escape') {
         if (activeModal) setModal(null)
         else if (turbanStudioOpen) setTurbanStudioOpen(false)
@@ -1696,7 +1696,7 @@ export default function App() {
 
   return (
     <main className="game">
-      {/* 3D Scene */}
+       
       <Scene
         driving={driving}
         onEnter={enterVehicle}
@@ -1723,7 +1723,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* Top Navigation & Status Bar */}
+       
       <header className="top-nav">
         <div className="brand-section">
           <div className="brand-title">
@@ -1734,13 +1734,13 @@ export default function App() {
         </div>
 
         <div className="top-actions">
-          {/* Chandigarh Cash Wallet Display */}
+           
           <div className="cash-badge" title="Chandigarh Rupee Cash (Spend at Nike, Adidas, Reebok, Skechers & Elante Mall)">
             💰 ₹{cash.toLocaleString()}
           </div>
           <div className="score-badge">🏆 {score} XP</div>
 
-          {/* Character & Wardrobe Studio (Sardar Ji, Normal Man, Chandigarh Girl) */}
+           
           <button
             id="btn-character-studio"
             className="hud-btn highlight-btn"
@@ -1753,7 +1753,7 @@ export default function App() {
             👤 CHARACTER & OUTFITS
           </button>
 
-          {/* Elante Mall & Cinema Concourse */}
+           
           <button
             id="btn-elante-mall"
             className="hud-btn"
@@ -1763,7 +1763,7 @@ export default function App() {
             🏢 ELANTE MALL & MOVIES
           </button>
 
-          {/* Brand Shopping Boutiques */}
+           
           <button
             id="btn-shops"
             className="hud-btn"
@@ -1773,7 +1773,7 @@ export default function App() {
             🛍️ SHOPS (NIKE / ADIDAS / REEBOK / SKECHERS)
           </button>
 
-          {/* Dance / Club Groove Mode */}
+           
           <button
             id="btn-dance"
             className={`hud-btn ${isDancing ? 'active-pulse' : ''}`}
@@ -1812,7 +1812,7 @@ export default function App() {
             🎯 LOCK MOUSE
           </button>
 
-          {/* Quick Fast-Travel / Warp Bar */}
+           
           <div className="warp-nav" style={{ display: 'inline-flex', gap: '5px', alignItems: 'center', marginLeft: '6px', borderLeft: '1px solid rgba(255,255,255,0.15)', paddingLeft: '8px' }}>
             <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 700, letterSpacing: '0.05em' }}>WARP:</span>
             <button
@@ -1855,7 +1855,7 @@ export default function App() {
         </div>
       </header>
 
-      {/* Quest & Landmark Tracker Drawer */}
+       
       {questDrawerOpen && (
         <aside className="quest-drawer">
           <div className="quest-drawer-title">
@@ -1875,7 +1875,7 @@ export default function App() {
         </aside>
       )}
 
-      {/* Floating Context-Sensitive Prompt */}
+       
       {nearbyLandmark && (
         <div className="interaction-prompt" onClick={() => {
           interactWithLandmark(nearbyLandmark.id)
@@ -1898,7 +1898,7 @@ export default function App() {
         </div>
       )}
 
-      {/* High-Fidelity Minimap */}
+       
       <Minimap
         playerPos={hudPos.player}
         playerYaw={playerYaw}
@@ -1961,7 +1961,7 @@ export default function App() {
         </div>
       </div>
 
-      {/* Non-overlapping Bottom Controls Bar & Speedometer */}
+       
       <footer className="bottom-bar">
         <div className="controls-badge-group">
           <span className="ctrl-tag"><kbd>W A S D</kbd> {driving ? 'DRIVE' : 'MOVE'}</span>
@@ -1977,7 +1977,7 @@ export default function App() {
         {driving && <div className="speed-gauge">{speed} KM/H</div>}
       </footer>
 
-      {/* Notifications Banner */}
+       
       {activeNotification && (
         <div className="notification-banner">
           <div className="notif-icon">{activeNotification.icon ?? '✨'}</div>
@@ -1988,7 +1988,7 @@ export default function App() {
         </div>
       )}
 
-      {/* Landmark Modal Dialogue */}
+       
       {activeModal && (
         <div className="modal-overlay" onClick={() => setModal(null)}>
           <div className="modal-card" onClick={e => e.stopPropagation()}>
@@ -2007,19 +2007,19 @@ export default function App() {
         </div>
       )}
 
-      {/* Brand Shopping Boutique Modal (Nike, Adidas, Reebok, Skechers) */}
+       
       <ShoppingModal />
 
-      {/* Character Customizer Studio (Sardar Ji, Urban Man, Chandigarh Girl) */}
+       
       <CharacterStudioModal />
 
-      {/* Elante Mall Concourse & PVR Multiplex Cinema Modal */}
+       
       <ElanteMallModal />
 
-      {/* Postcard Photo Mode */}
+       
       {postcardOpen && <PostcardMode onClose={() => setPostcardOpen(false)} />}
 
-      {/* Turban & Dastar Customization Studio */}
+       
       {turbanStudioOpen && (
         <TurbanCustomizer
           config={turbanConfig}
@@ -2033,7 +2033,7 @@ export default function App() {
         />
       )}
 
-      {/* Pause Menu Overlay */}
+       
       {paused && (
         <div className="pause">
           <section>

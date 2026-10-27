@@ -1,5 +1,5 @@
-// Procedural Web Audio API sound generator for Chandigarh Sector 17
-// Zero external assets needed, ultra-low latency, and fully dynamic
+
+
 
 class SoundManager {
   private ctx: AudioContext | null = null
@@ -11,7 +11,7 @@ class SoundManager {
   private musicalFountainTimer: number | null = null
   private isMusicPlaying: boolean = false
 
-  // Club & Discotheque Audio
+  
   private clubGain: GainNode | null = null
   private clubFilter: BiquadFilterNode | null = null
   private clubTimer: number | null = null
@@ -89,7 +89,7 @@ class SoundManager {
 
   updateFountainDistance(dist: number) {
     if (!this.ctx || !this.fountainGain || this.muted) return
-    // Volume max (0.28) when dist < 5m, drops to 0 at 65m
+    
     const target = dist > 65 ? 0 : Math.max(0, (1 - dist / 65) * 0.28)
     this.fountainGain.gain.setTargetAtTime(target, this.ctx.currentTime, 0.2)
   }
@@ -135,7 +135,7 @@ class SoundManager {
     if (!this.ctx || !this.masterGain || this.muted) return
     const now = this.ctx.currentTime
 
-    // Classic Indian dual-tone car horn (440Hz + 554Hz - A4 & C#5)
+    
     ;[440, 554].forEach(freq => {
       if (!this.ctx || !this.masterGain) return
       const osc = this.ctx.createOscillator()
@@ -178,7 +178,7 @@ class SoundManager {
     this.ensureContext()
     if (!this.ctx || !this.masterGain || this.muted) return
     const now = this.ctx.currentTime
-    // Uplifting arpeggio: C5, E5, G5, C6
+    
     const notes = [523.25, 659.25, 783.99, 1046.5]
     notes.forEach((freq, idx) => {
       if (!this.ctx || !this.masterGain) return
@@ -221,7 +221,7 @@ class SoundManager {
     this.ensureContext()
     if (!this.ctx || !this.masterGain || this.muted) return
     const now = this.ctx.currentTime
-    // Elegant luxury shopping cash register / crystal chime
+    
     const notes = [523.25, 659.25, 783.99, 1046.5]
     notes.forEach((freq, idx) => {
       if (!this.ctx || !this.masterGain) return
@@ -243,14 +243,14 @@ class SoundManager {
     if (this.isMusicPlaying) return
     this.isMusicPlaying = true
 
-    // Sector 17 musical fountain melody: rhythmic uplifting motif
+    
     const notes = [
       440, 493.88, 554.37, 659.25, 739.99, 880, 739.99, 659.25,
       554.37, 659.25, 739.99, 880, 987.77, 1108.73, 987.77, 880
     ]
     let step = 0
     const interval = 220
-    const totalSteps = notes.length * 3 // Play 3 rounds
+    const totalSteps = notes.length * 3 
 
     this.musicalFountainTimer = window.setInterval(() => {
       if (!this.ctx || !this.masterGain || this.muted) {
@@ -294,9 +294,9 @@ class SoundManager {
     this.isMusicPlaying = false
   }
 
-  /* ======================================================================= */
-  /* SCORE CLUB 17 & DISCOTHEQUE PROCEDURAL BHANGRA-EDM AUDIO                */
-  /* ======================================================================= */
+   
+   
+   
   private setupClubAudio() {
     if (!this.ctx || !this.masterGain) return
     try {
@@ -311,7 +311,7 @@ class SoundManager {
       this.clubFilter.connect(this.clubGain)
       this.clubGain.connect(this.masterGain)
     } catch {
-      // AudioContext unavailable
+      
     }
   }
 
@@ -334,17 +334,17 @@ class SoundManager {
 
     const now = this.ctx.currentTime
     if (dist <= 16) {
-      // Inside the club / dance floor: full high-definition crisp sound & deep punchy bass
+      
       this.clubFilter.frequency.setTargetAtTime(14000, now, 0.12)
       this.clubGain.gain.setTargetAtTime(this.muted ? 0 : 0.42, now, 0.1)
     } else if (dist <= 26) {
-      // Approaching the entrance / VIP red carpet: opening lowpass filter
+      
       const factor = (26 - dist) / 10
       const cutoff = 400 + factor * 7000
       this.clubFilter.frequency.setTargetAtTime(cutoff, now, 0.12)
       this.clubGain.gain.setTargetAtTime(this.muted ? 0 : 0.28, now, 0.1)
     } else {
-      // Outside in plaza: muffled underground subwoofer bass vibrating through concrete walls
+      
       const factor = (45 - dist) / 19
       const cutoff = 150 + factor * 250
       this.clubFilter.frequency.setTargetAtTime(cutoff, now, 0.15)
@@ -357,7 +357,7 @@ class SoundManager {
     if (this.isClubPlaying) return
     this.isClubPlaying = true
 
-    // 128 BPM -> 16th note interval = 117.18 ms
+    
     const stepInterval = 117
     const tumbiScale = [220, 246.94, 277.18, 329.63, 369.99, 440, 493.88, 554.37]
     const bassNotes = [55, 55, 65.41, 55, 73.42, 65.41, 55, 82.41]
@@ -371,7 +371,7 @@ class SoundManager {
       const now = this.ctx.currentTime
       const step = this.clubBeatIndex % 16
 
-      // 1. PUNCHY 808 SUB KICK (Every quarter note: steps 0, 4, 8, 12)
+      
       if (step % 4 === 0) {
         const kickOsc = this.ctx.createOscillator()
         const kickGain = this.ctx.createGain()
@@ -388,9 +388,9 @@ class SoundManager {
         kickOsc.stop(now + 0.3)
       }
 
-      // 2. SNARE CLAP (Beats 4 and 12)
+      
       if (step === 4 || step === 12) {
-        // Highpass noise burst
+        
         const bufferSize = this.ctx.sampleRate * 0.12
         const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate)
         const data = buffer.getChannelData(0)
@@ -413,7 +413,7 @@ class SoundManager {
         noise.stop(now + 0.12)
       }
 
-      // 3. HI-HATS (16th note rhythm)
+      
       if (step % 2 === 1 || step % 4 === 2) {
         const bufferSize = this.ctx.sampleRate * 0.05
         const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate)
@@ -438,7 +438,7 @@ class SoundManager {
         hat.stop(now + 0.1)
       }
 
-      // 4. ROLLING SUB-BASS (8th note pulse)
+      
       if (step % 2 === 0) {
         const noteIdx = Math.floor(this.clubBeatIndex / 4) % bassNotes.length
         const bassFreq = bassNotes[noteIdx]
@@ -456,7 +456,7 @@ class SoundManager {
         bassOsc.stop(now + 0.2)
       }
 
-      // 5. CATCHY PUNJABI BHANGRA / TUMBI SYNTH RIFF
+      
       if (step % 2 === 0 || step === 3 || step === 7 || step === 11) {
         const riffSeq = [0, 2, 4, 3, 5, 4, 2, 0, 7, 5, 4, 2, 4, 5, 7, 4]
         const note = tumbiScale[riffSeq[this.clubBeatIndex % riffSeq.length]]
@@ -492,8 +492,8 @@ class SoundManager {
     if (!this.ctx || !this.masterGain || this.muted) return
     const now = this.ctx.currentTime
 
-    // A. Triple DJ Airhorn blast: "BWA-BWA-BWA-BWAAAH!"
-    const hornPitches = [466.16, 587.33, 700] // Bb chord
+    
+    const hornPitches = [466.16, 587.33, 700] 
     const blasts = [0, 0.14, 0.28, 0.44]
     blasts.forEach((timeOffset, idx) => {
       const dur = idx === 3 ? 0.45 : 0.1
@@ -514,7 +514,7 @@ class SoundManager {
       })
     })
 
-    // B. Massive Sub-Bass Drop impact at +0.9s
+    
     const dropTime = now + 0.9
     const subOsc = this.ctx.createOscillator()
     const subGain = this.ctx.createGain()
@@ -531,18 +531,18 @@ class SoundManager {
     subOsc.stop(dropTime + 1.25)
   }
 
-  // Shopping purchase Ka-Ching sound
+  
   playCashRegister() {
     this.ensureContext()
     if (!this.ctx || !this.masterGain || this.muted) return
     const now = this.ctx.currentTime
 
-    // Coin chime 1
+    
     const osc1 = this.ctx.createOscillator()
     const gain1 = this.ctx.createGain()
     osc1.type = 'triangle'
-    osc1.frequency.setValueAtTime(987.77, now) // B5
-    osc1.frequency.setValueAtTime(1318.51, now + 0.08) // E6
+    osc1.frequency.setValueAtTime(987.77, now) 
+    osc1.frequency.setValueAtTime(1318.51, now + 0.08) 
     gain1.gain.setValueAtTime(0.3, now)
     gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.45)
     osc1.connect(gain1)
@@ -550,11 +550,11 @@ class SoundManager {
     osc1.start(now)
     osc1.stop(now + 0.46)
 
-    // Metal drawer chime
+    
     const osc2 = this.ctx.createOscillator()
     const gain2 = this.ctx.createGain()
     osc2.type = 'sine'
-    osc2.frequency.setValueAtTime(1760, now + 0.09) // A6
+    osc2.frequency.setValueAtTime(1760, now + 0.09) 
     gain2.gain.setValueAtTime(0.25, now + 0.09)
     gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.6)
     osc2.connect(gain2)
@@ -563,17 +563,17 @@ class SoundManager {
     osc2.stop(now + 0.62)
   }
 
-  // Bar drink clink & fizz sound
+  
   playDrinkToast() {
     this.ensureContext()
     if (!this.ctx || !this.masterGain || this.muted) return
     const now = this.ctx.currentTime
 
-    // Glass clink
+    
     const glass = this.ctx.createOscillator()
     const glassGain = this.ctx.createGain()
     glass.type = 'sine'
-    glass.frequency.setValueAtTime(2489, now) // D#7
+    glass.frequency.setValueAtTime(2489, now) 
     glassGain.gain.setValueAtTime(0.28, now)
     glassGain.gain.exponentialRampToValueAtTime(0.001, now + 0.8)
     glass.connect(glassGain)
@@ -582,13 +582,13 @@ class SoundManager {
     glass.stop(now + 0.85)
   }
 
-  // Movie / Multiplex cinematic swell
+  
   playCinemaTheme() {
     this.ensureContext()
     if (!this.ctx || !this.masterGain || this.muted) return
     const now = this.ctx.currentTime
 
-    // Grand cinematic minor chord swell (C - Eb - G - Bb)
+    
     const chord = [130.81, 155.56, 196.0, 233.08]
     chord.forEach((freq, idx) => {
       if (!this.ctx || !this.masterGain) return

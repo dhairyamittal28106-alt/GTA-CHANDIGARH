@@ -20,27 +20,27 @@ export function MusicalFountain({ night, active, playerPos }: MusicalFountainPro
   const waterRipple = useMemo(() => textures.getWaterRippleTexture(), [])
   const beton = useMemo(() => textures.getBetonBrutTexture(), [])
 
-  // Track player distance for audio attenuation & animate water waves
+  
   useFrame(({ clock }) => {
     const t = clock.elapsedTime
     const dist = Math.hypot(playerPos.x, playerPos.z)
     sound.updateFountainDistance(dist)
 
-    // Dynamic water ripples animation
+    
     waterRipple.offset.x = (t * 0.04) % 1
     waterRipple.offset.y = (t * 0.03) % 1
 
-    // Water jets height choreography
+    
     const intensity = active ? 1.8 : 1.0
 
-    // Central high geyser
+    
     if (centralJetRef.current) {
       const h = (active ? 3.6 : 1.8) + Math.sin(t * 3.5) * (active ? 0.5 : 0.2)
       centralJetRef.current.scale.set(1, h / 2.5, 1)
       centralJetRef.current.position.y = 0.5 + h / 2
     }
 
-    // Inner ring of dancing jets (8 jets)
+    
     if (innerRingGroupRef.current) {
       innerRingGroupRef.current.children.forEach((child, i) => {
         const mesh = child as THREE.Mesh
@@ -52,7 +52,7 @@ export function MusicalFountain({ night, active, playerPos }: MusicalFountainPro
       })
     }
 
-    // Outer ring of arched jets (16 jets)
+    
     if (outerRingGroupRef.current) {
       outerRingGroupRef.current.children.forEach((child, i) => {
         const mesh = child as THREE.Mesh
@@ -64,9 +64,9 @@ export function MusicalFountain({ night, active, playerPos }: MusicalFountainPro
       })
     }
 
-    // Underwater light cycle
+    
     if (lightRef.current && night) {
-      const hue = active ? (t * 0.3) % 1 : 0.55 // Cyan or rainbow
+      const hue = active ? (t * 0.3) % 1 : 0.55 
       lightRef.current.color.setHSL(hue, 0.95, 0.65)
       lightRef.current.intensity = active ? 85 : 36
     }
@@ -74,8 +74,8 @@ export function MusicalFountain({ night, active, playerPos }: MusicalFountainPro
 
   return (
     <group position={[0, 0, 0]}>
-      {/* Sunken Stepped Amphitheatre Seating Surrounding the Fountain */}
-      {/* Tier 1 (Outer) */}
+       
+       
       <mesh position={[0, 0.08, 0]} receiveShadow>
         <cylinderGeometry args={[15.5, 16.5, 0.2, 48]} />
         <meshStandardMaterial
@@ -85,7 +85,7 @@ export function MusicalFountain({ night, active, playerPos }: MusicalFountainPro
           roughness={0.88}
         />
       </mesh>
-      {/* Tier 2 */}
+       
       <mesh position={[0, 0.22, 0]} receiveShadow>
         <cylinderGeometry args={[13.2, 14.2, 0.22, 48]} />
         <meshStandardMaterial
@@ -95,7 +95,7 @@ export function MusicalFountain({ night, active, playerPos }: MusicalFountainPro
           roughness={0.9}
         />
       </mesh>
-      {/* Tier 3 */}
+       
       <mesh position={[0, 0.36, 0]} receiveShadow>
         <cylinderGeometry args={[11.2, 12.0, 0.22, 48]} />
         <meshStandardMaterial
@@ -106,7 +106,7 @@ export function MusicalFountain({ night, active, playerPos }: MusicalFountainPro
         />
       </mesh>
 
-      {/* Main Fountain Coping & Outer Wall */}
+       
       <mesh position={[0, 0.55, 0]} castShadow receiveShadow>
         <cylinderGeometry args={[9.4, 9.8, 0.45, 48]} />
         <meshStandardMaterial
@@ -117,7 +117,7 @@ export function MusicalFountain({ night, active, playerPos }: MusicalFountainPro
         />
       </mesh>
 
-      {/* Red Sandstone Inner Trim (Authentic Chandigarh detail) */}
+       
       <mesh position={[0, 0.78, 0]} castShadow receiveShadow>
         <cylinderGeometry args={[9.5, 9.5, 0.08, 48]} />
         <meshStandardMaterial
@@ -127,7 +127,7 @@ export function MusicalFountain({ night, active, playerPos }: MusicalFountainPro
         />
       </mesh>
 
-      {/* Dynamic Glistening Water Pool Surface */}
+       
       <mesh ref={waterPoolRef} position={[0, 0.64, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <circleGeometry args={[9.1, 48]} />
         <meshStandardMaterial
@@ -141,7 +141,7 @@ export function MusicalFountain({ night, active, playerPos }: MusicalFountainPro
         />
       </mesh>
 
-      {/* Central Raised Pedestal */}
+       
       <mesh position={[0, 0.75, 0]} castShadow receiveShadow>
         <cylinderGeometry args={[2.0, 2.4, 0.4, 24]} />
         <meshStandardMaterial
@@ -152,7 +152,7 @@ export function MusicalFountain({ night, active, playerPos }: MusicalFountainPro
         />
       </mesh>
 
-      {/* Central High Geyser Water Jet */}
+       
       <mesh ref={centralJetRef} position={[0, 1.8, 0]}>
         <cylinderGeometry args={[0.08, 0.42, 2.5, 16]} />
         <meshStandardMaterial
@@ -166,13 +166,13 @@ export function MusicalFountain({ night, active, playerPos }: MusicalFountainPro
         />
       </mesh>
 
-      {/* Foam Ring at Base of Geyser */}
+       
       <mesh position={[0, 0.68, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <ringGeometry args={[0.3, 1.2, 24]} />
         <meshBasicMaterial color="#ffffff" transparent opacity={0.65} />
       </mesh>
 
-      {/* Inner Ring of 8 Water Jets */}
+       
       <group ref={innerRingGroupRef}>
         {Array.from({ length: 8 }, (_, i) => {
           const angle = (i * Math.PI * 2) / 8
@@ -190,7 +190,7 @@ export function MusicalFountain({ night, active, playerPos }: MusicalFountainPro
                   emissiveIntensity={night ? (active ? 2.2 : 0.9) : 0.15}
                 />
               </mesh>
-              {/* Foam base */}
+               
               <mesh position={[0, 0.66, 0]} rotation={[-Math.PI / 2, 0, 0]}>
                 <ringGeometry args={[0.1, 0.5, 16]} />
                 <meshBasicMaterial color="#ffffff" transparent opacity={0.5} />
@@ -200,7 +200,7 @@ export function MusicalFountain({ night, active, playerPos }: MusicalFountainPro
         })}
       </group>
 
-      {/* Outer Ring of 16 Water Jets */}
+       
       <group ref={outerRingGroupRef}>
         {Array.from({ length: 16 }, (_, i) => {
           const angle = (i * Math.PI * 2) / 16
@@ -227,7 +227,7 @@ export function MusicalFountain({ night, active, playerPos }: MusicalFountainPro
         })}
       </group>
 
-      {/* Underwater Illuminations */}
+       
       <pointLight
         ref={lightRef}
         position={[0, 1.2, 0]}
@@ -237,7 +237,7 @@ export function MusicalFountain({ night, active, playerPos }: MusicalFountainPro
         decay={2}
       />
 
-      {/* Modernist Plaza Sunken Lights on Amphitheatre Step Rims */}
+       
       {Array.from({ length: 12 }, (_, i) => {
         const angle = (i * Math.PI * 2) / 12
         const r = 12.6

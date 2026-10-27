@@ -10,7 +10,7 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
   const beton = useMemo(() => textures.getBetonBrutTexture(), [])
   const brick = useMemo(() => textures.getChandigarhBrickTexture(), [])
 
-  // Shop Sign Textures
+  
   const ichSign = useMemo(() => {
     const canvas = document.createElement('canvas')
     canvas.width = 512
@@ -136,7 +136,7 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
     return tex
   }, [])
 
-  // Planet Fashion Signboard (Louis Philippe / Van Heusen / Allen Solly - from video 01:30)
+  
   const planetFashionSign = useMemo(() => {
     const canvas = document.createElement('canvas')
     canvas.width = 512
@@ -163,7 +163,7 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
     return tex
   }, [])
 
-  // Kapsons Mega Flagship Signboard (from video 01:26 & 01:32)
+  
   const kapsonsSign = useMemo(() => {
     const canvas = document.createElement('canvas')
     canvas.width = 512
@@ -190,7 +190,7 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
     return tex
   }, [])
 
-  // United Colors of Benetton Signboard (from video 01:34)
+  
   const benettonSign = useMemo(() => {
     const canvas = document.createElement('canvas')
     canvas.width = 512
@@ -210,7 +210,7 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
     return tex
   }, [])
 
-  // Clock Tower Texture
+  
   const clockFaceTexture = useMemo(() => {
     const canvas = document.createElement('canvas')
     canvas.width = 256
@@ -224,7 +224,7 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
     ctx.arc(128, 128, 110, 0, Math.PI * 2)
     ctx.stroke()
 
-    // Hour ticks
+    
     for (let i = 0; i < 12; i++) {
       const angle = (i * Math.PI) / 6
       const x1 = 128 + Math.sin(angle) * 90
@@ -238,17 +238,17 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
       ctx.stroke()
     }
 
-    // Hands showing 6:30 PM (Evening in Sector 17)
+    
     ctx.lineWidth = 6
     ctx.beginPath()
     ctx.moveTo(128, 128)
-    ctx.lineTo(128, 180) // Hour hand down
+    ctx.lineTo(128, 180) 
     ctx.stroke()
 
     ctx.lineWidth = 4
     ctx.beginPath()
     ctx.moveTo(128, 128)
-    ctx.lineTo(128, 50) // Minute hand up
+    ctx.lineTo(128, 50) 
     ctx.stroke()
 
     const tex = new THREE.CanvasTexture(canvas)
@@ -258,24 +258,24 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
 
   return (
     <group>
-      {/* ================================================================= */}
-      {/* SOUTH COLONNADE: Indian Coffee House & Sindhi Sweets */}
-      {/* ================================================================= */}
+       
+       
+       
       <group position={[-20, 0, 32]}>
-        {/* Shaded Covered Arcade Roof */}
+         
         <mesh position={[0, 4.4, 0]} castShadow receiveShadow>
           <boxGeometry args={[36, 0.45, 8]} />
           <meshStandardMaterial color="#beb7a7" roughness={0.9} />
         </mesh>
 
-        {/* Massive Concrete Pillars (Pilotis) Facing the Plaza */}
+         
         {[-16, -10, -4, 2, 8, 14].map((x, i) => (
           <group key={`south-pillar-${i}`} position={[x, 2.2, -3.6]}>
             <mesh castShadow receiveShadow>
               <boxGeometry args={[0.7, 4.4, 0.7]} />
               <meshStandardMaterial color="#a9a292" roughness={0.94} />
             </mesh>
-            {/* Corbusier Capital Detail */}
+             
             <mesh position={[0, 2.0, 0]}>
               <boxGeometry args={[0.9, 0.3, 0.9]} />
               <meshStandardMaterial color="#8b8577" />
@@ -283,14 +283,14 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
           </group>
         ))}
 
-        {/* Indian Coffee House Stall & Outdoor Cane Chairs */}
+         
         <group position={[-10, 0, 3.2]}>
-          {/* Shop Front Wall */}
+           
           <mesh position={[0, 2.2, 0]}>
             <boxGeometry args={[14, 4.4, 0.3]} />
             <meshStandardMaterial color="#ddd6c7" roughness={0.9} />
           </mesh>
-          {/* Signboard */}
+           
           <mesh position={[0, 3.6, -0.2]}>
             <planeGeometry args={[7.2, 1.3]} />
             <meshStandardMaterial
@@ -299,12 +299,12 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
               emissiveIntensity={night ? 1.6 : 0.15}
             />
           </mesh>
-          {/* Service counter */}
+           
           <mesh position={[0, 1.0, -1.8]} castShadow>
             <boxGeometry args={[5, 1.1, 1.2]} />
             <meshStandardMaterial color="#5e503f" />
           </mesh>
-          {/* Coffee cups & urns */}
+           
           <mesh position={[-1.2, 1.8, -1.8]}>
             <cylinderGeometry args={[0.2, 0.25, 0.5, 12]} />
             <meshStandardMaterial color="#e0e1dd" metalness={0.9} roughness={0.1} />
@@ -313,7 +313,7 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
             <cylinderGeometry args={[0.08, 0.06, 0.16, 8]} />
             <meshStandardMaterial color="#ffffff" />
           </mesh>
-          {/* Outdoor Cafe Table & Cane Chairs */}
+           
           <group position={[2.5, 0, -2.2]}>
             <mesh position={[0, 0.72, 0]} castShadow>
               <cylinderGeometry args={[0.7, 0.7, 0.06, 16]} />
@@ -332,13 +332,13 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
           </group>
         </group>
 
-        {/* Sindhi Sweets */}
+         
         <group position={[8, 0, 3.2]}>
           <mesh position={[0, 2.2, 0]}>
             <boxGeometry args={[14, 4.4, 0.3]} />
             <meshStandardMaterial color="#e5ded0" roughness={0.9} />
           </mesh>
-          {/* Signboard */}
+           
           <mesh position={[0, 3.6, -0.2]}>
             <planeGeometry args={[7.2, 1.3]} />
             <meshStandardMaterial
@@ -347,7 +347,7 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
               emissiveIntensity={night ? 1.6 : 0.15}
             />
           </mesh>
-          {/* Glass display showcase */}
+           
           <mesh position={[0, 1.0, -1.6]} castShadow>
             <boxGeometry args={[6, 1.1, 1.4]} />
             <meshStandardMaterial color="#222" metalness={0.4} roughness={0.2} />
@@ -359,17 +359,17 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
         </group>
       </group>
 
-      {/* ================================================================= */}
-      {/* EAST COLONNADE: Softy Corner & Hot Millions */}
-      {/* ================================================================= */}
+       
+       
+       
       <group position={[28, 0, 24]} rotation={[0, -Math.PI / 2, 0]}>
-        {/* Covered Arcade Roof */}
+         
         <mesh position={[0, 4.4, 0]} castShadow receiveShadow>
           <boxGeometry args={[30, 0.45, 8]} />
           <meshStandardMaterial color="#beb7a7" roughness={0.9} />
         </mesh>
 
-        {/* Concrete Pillars */}
+         
         {[-12, -6, 0, 6, 12].map((x, i) => (
           <group key={`east-pillar-${i}`} position={[x, 2.2, -3.6]}>
             <mesh castShadow receiveShadow>
@@ -379,13 +379,13 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
           </group>
         ))}
 
-        {/* Softy Corner Kiosk */}
+         
         <group position={[-6, 0, 3.2]}>
           <mesh position={[0, 2.2, 0]}>
             <boxGeometry args={[11, 4.4, 0.3]} />
             <meshStandardMaterial color="#f0ece1" roughness={0.9} />
           </mesh>
-          {/* Signboard */}
+           
           <mesh position={[0, 3.6, -0.2]}>
             <planeGeometry args={[6.8, 1.25]} />
             <meshStandardMaterial
@@ -394,14 +394,14 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
               emissiveIntensity={night ? 2.0 : 0.2}
             />
           </mesh>
-          {/* Giant Stylized 3D Ice Cream Cone on Top! */}
+           
           <group position={[0, 5.2, -0.5]}>
-            {/* Waffle Cone */}
+             
             <mesh rotation={[Math.PI, 0, 0]} castShadow>
               <coneGeometry args={[0.55, 1.4, 12]} />
               <meshStandardMaterial color="#d4a373" roughness={0.8} />
             </mesh>
-            {/* Vanilla & Chocolate Swirl */}
+             
             <mesh position={[0, 0.8, 0]} castShadow>
               <sphereGeometry args={[0.65, 16, 12]} />
               <meshStandardMaterial color="#fdf0d5" roughness={0.4} />
@@ -416,20 +416,20 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
             </mesh>
           </group>
 
-          {/* Service counter */}
+           
           <mesh position={[0, 1.0, -1.6]} castShadow>
             <boxGeometry args={[4.8, 1.1, 1.2]} />
             <meshStandardMaterial color="#d90429" />
           </mesh>
         </group>
 
-        {/* Hot Millions Fast Food */}
+         
         <group position={[6, 0, 3.2]}>
           <mesh position={[0, 2.2, 0]}>
             <boxGeometry args={[11, 4.4, 0.3]} />
             <meshStandardMaterial color="#ede8dd" roughness={0.9} />
           </mesh>
-          {/* Signboard */}
+           
           <mesh position={[0, 3.6, -0.2]}>
             <planeGeometry args={[6.8, 1.25]} />
             <meshStandardMaterial
@@ -438,7 +438,7 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
               emissiveIntensity={night ? 1.8 : 0.2}
             />
           </mesh>
-          {/* Glass Doors */}
+           
           <mesh position={[0, 1.4, -0.2]}>
             <boxGeometry args={[4, 2.6, 0.1]} />
             <meshStandardMaterial color="#1d3557" metalness={0.7} roughness={0.2} />
@@ -446,9 +446,9 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
         </group>
       </group>
 
-      {/* ================================================================= */}
-      {/* WEST ARCADE: Phulkari Punjab Emporium */}
-      {/* ================================================================= */}
+       
+       
+       
       <group position={[-28, 0, -8]} rotation={[0, Math.PI / 2, 0]}>
         <mesh position={[0, 4.4, 0]} castShadow receiveShadow>
           <boxGeometry args={[18, 0.45, 8]} />
@@ -473,7 +473,7 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
               emissiveIntensity={night ? 1.8 : 0.2}
             />
           </mesh>
-          {/* Colorful Dupattas in Display */}
+           
           {[-3, -1, 1, 3].map((dx, di) => (
             <mesh key={di} position={[dx, 1.5, -0.15]}>
               <planeGeometry args={[1.5, 2.2]} />
@@ -486,11 +486,11 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
         </group>
       </group>
 
-      {/* ================================================================= */}
-      {/* BRUTALIST CONCRETE CLOCK TOWER */}
-      {/* ================================================================= */}
+       
+       
+       
       <group position={[-38, 0, 5]}>
-        {/* Stepped Base */}
+         
         <mesh position={[0, 0.3, 0]} castShadow receiveShadow>
           <boxGeometry args={[4.2, 0.6, 4.2]} />
           <meshStandardMaterial color="#8e897d" roughness={0.94} />
@@ -500,7 +500,7 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
           <meshStandardMaterial color="#a8a294" roughness={0.92} />
         </mesh>
 
-        {/* Tall Brutalist Obelisk Shaft */}
+         
         <mesh position={[0, 8.5, 0]} castShadow receiveShadow>
           <boxGeometry args={[2.4, 15, 2.4]} />
           <meshStandardMaterial
@@ -512,7 +512,7 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
           />
         </mesh>
 
-        {/* Deep Horizontal & Vertical Architectural Shadow Slots (Corbusier Style) */}
+         
         {[3, 6, 9, 12].map(y => (
           <mesh key={y} position={[0, y, 0]}>
             <boxGeometry args={[2.55, 0.2, 2.55]} />
@@ -520,7 +520,7 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
           </mesh>
         ))}
 
-        {/* Clock Faces on all 4 Sides at Top */}
+         
         {[
           { pos: [0, 14.5, 1.25], rot: [0, 0, 0] },
           { pos: [0, 14.5, -1.25], rot: [0, Math.PI, 0] },
@@ -537,7 +537,7 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
           </mesh>
         ))}
 
-        {/* Pyramid Peak */}
+         
         <mesh position={[0, 16.7, 0]} rotation={[0, Math.PI / 4, 0]} castShadow>
           <coneGeometry args={[1.7, 1.6, 4]} />
           <meshStandardMaterial
@@ -551,12 +551,12 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
 
       </group>
 
-      {/* ================================================================= */}
-      {/* NORTH-EAST PROMENADE: Kapsons, Planet Fashion & Benetton          */}
-      {/* (Exact replica of showrooms shown in video 01:22 - 01:37)         */}
-      {/* ================================================================= */}
+       
+       
+       
+       
       <group position={[18, 0, -18]}>
-        {/* Covered 2-Story Arcade Structure (32m x 5m x 8m) */}
+         
         <mesh position={[0, 4.2, 0]} castShadow receiveShadow>
           <boxGeometry args={[32, 8.4, 6]} />
           <meshStandardMaterial
@@ -567,14 +567,14 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
           />
         </mesh>
 
-        {/* Shaded Colonnade Columns with White Cylindrical Pillars */}
+         
         {[-14, -7, 0, 7, 14].map((px, idx) => (
           <group key={idx} position={[px, 2.2, 3.2]}>
             <mesh castShadow receiveShadow>
               <cylinderGeometry args={[0.36, 0.4, 4.4, 20]} />
               <meshStandardMaterial color="#f8fafc" roughness={0.4} />
             </mesh>
-            {/* Square pillar capital */}
+             
             <mesh position={[0, 2.1, 0]}>
               <boxGeometry args={[0.9, 0.2, 0.9]} />
               <meshStandardMaterial color="#e2e8f0" />
@@ -582,14 +582,14 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
           </group>
         ))}
 
-        {/* Cascading Golden Fairy Light Curtains (Exact replica from video 01:22-01:36) */}
+         
         <group position={[0, 4.2, 3.2]}>
           {Array.from({ length: 48 }).map((_, li) => {
             const lx = (li - 23.5) * 0.65
             const lh = 3.6 + Math.sin(li * 1.5) * 0.4
             return (
               <group key={li} position={[lx, -lh / 2, 0]}>
-                {/* Vertical shimmering light wire */}
+                 
                 <mesh>
                   <cylinderGeometry args={[0.008, 0.008, lh, 4]} />
                   <meshStandardMaterial
@@ -603,13 +603,13 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
           })}
         </group>
 
-        {/* 1. KAPSONS MEGA FLAGSHIP SHOWROOM (Left Wing, X = -10) */}
+         
         <group position={[-10, 0, 2.8]}>
           <mesh position={[0, 3.8, 0.1]}>
             <planeGeometry args={[8.8, 1.8]} />
             <meshBasicMaterial map={kapsonsSign} />
           </mesh>
-          {/* Floor-to-ceiling plate glass windows */}
+           
           <mesh position={[0, 1.8, 0.1]}>
             <boxGeometry args={[8.6, 3.4, 0.08]} />
             <meshPhysicalMaterial
@@ -620,7 +620,7 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
               roughness={0.08}
             />
           </mesh>
-          {/* Mannequins in evening attire */}
+           
           {[-2, 0, 2].map((mx, idx) => (
             <group key={idx} position={[mx, 0, -0.8]}>
               <mesh position={[0, 0.9, 0]} castShadow>
@@ -635,13 +635,13 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
           ))}
         </group>
 
-        {/* 2. PLANET FASHION SHOWROOM (Center Wing, X = 0, Video 01:30) */}
+         
         <group position={[0, 0, 2.8]}>
           <mesh position={[0, 3.8, 0.1]}>
             <planeGeometry args={[8.8, 1.8]} />
             <meshBasicMaterial map={planetFashionSign} />
           </mesh>
-          {/* Red Glowing Trim Portal */}
+           
           <mesh position={[0, 1.8, 0.1]}>
             <boxGeometry args={[8.6, 3.4, 0.08]} />
             <meshPhysicalMaterial
@@ -656,7 +656,7 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
             <boxGeometry args={[8.6, 0.08, 0.08]} />
             <meshStandardMaterial color="#b91c1c" emissive="#b91c1c" emissiveIntensity={1} />
           </mesh>
-          {/* Formal Shirt Displays */}
+           
           {[-2.2, 0, 2.2].map((fx, idx) => (
             <mesh key={idx} position={[fx, 1.2, -0.6]} castShadow>
               <boxGeometry args={[1.2, 0.8, 0.4]} />
@@ -665,7 +665,7 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
           ))}
         </group>
 
-        {/* 3. UNITED COLORS OF BENETTON (Right Wing, X = 10, Video 01:34) */}
+         
         <group position={[10, 0, 2.8]}>
           <mesh position={[0, 3.8, 0.1]}>
             <planeGeometry args={[8.8, 1.8]} />
@@ -681,7 +681,7 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
               roughness={0.08}
             />
           </mesh>
-          {/* Colorful folded sweaters in window */}
+           
           {[-2.4, -0.8, 0.8, 2.4].map((bx, idx) => (
             <mesh key={idx} position={[bx, 1.0, -0.6]} castShadow>
               <boxGeometry args={[0.9, 0.6, 0.4]} />
@@ -691,11 +691,11 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
         </group>
       </group>
 
-      {/* ================================================================= */}
-      {/* "I ❤️ CHD" PHOTO MONUMENT (Exact replica from video 01:26)         */}
-      {/* ================================================================= */}
+       
+       
+       
       <group position={[2, 0, -22]}>
-        {/* Concrete Pedestal Base */}
+         
         <mesh position={[0, 0.25, 0]} receiveShadow>
           <boxGeometry args={[4.8, 0.5, 1.2]} />
           <meshStandardMaterial
@@ -706,7 +706,7 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
           />
         </mesh>
 
-        {/* 3D Letter 'I' */}
+         
         <group position={[-1.6, 1.2, 0]}>
           <mesh castShadow>
             <boxGeometry args={[0.3, 1.4, 0.3]} />
@@ -722,9 +722,9 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
           </mesh>
         </group>
 
-        {/* Glowing 3D Heart Symbol '❤️' */}
+         
         <group position={[-0.5, 1.3, 0]}>
-          {/* Left heart lobe */}
+           
           <mesh position={[-0.25, 0.2, 0]} rotation={[0, 0, Math.PI / 4]} castShadow>
             <cylinderGeometry args={[0.38, 0.38, 0.32, 24]} />
             <meshStandardMaterial
@@ -734,7 +734,7 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
               roughness={0.2}
             />
           </mesh>
-          {/* Right heart lobe */}
+           
           <mesh position={[0.25, 0.2, 0]} rotation={[0, 0, -Math.PI / 4]} castShadow>
             <cylinderGeometry args={[0.38, 0.38, 0.32, 24]} />
             <meshStandardMaterial
@@ -744,7 +744,7 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
               roughness={0.2}
             />
           </mesh>
-          {/* Lower pointed heart base */}
+           
           <mesh position={[0, -0.25, 0]} rotation={[0, 0, Math.PI]}>
             <coneGeometry args={[0.55, 0.8, 24]} />
             <meshStandardMaterial
@@ -756,8 +756,8 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
           </mesh>
         </group>
 
-        {/* 3D Letters 'C H D' */}
-        {/* Letter C */}
+         
+         
         <group position={[0.6, 1.2, 0]}>
           <mesh castShadow>
             <cylinderGeometry args={[0.65, 0.65, 0.3, 24, 1, false, 0.8, Math.PI * 1.5]} />
@@ -765,7 +765,7 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
           </mesh>
         </group>
 
-        {/* Letter H */}
+         
         <group position={[1.4, 1.2, 0]}>
           <mesh position={[-0.3, 0, 0]} castShadow>
             <boxGeometry args={[0.2, 1.4, 0.3]} />
@@ -781,7 +781,7 @@ export function ColonnadeShops({ night }: ColonnadeShopsProps) {
           </mesh>
         </group>
 
-        {/* Letter D */}
+         
         <group position={[2.1, 1.2, 0]}>
           <mesh position={[-0.2, 0, 0]} castShadow>
             <boxGeometry args={[0.2, 1.4, 0.3]} />

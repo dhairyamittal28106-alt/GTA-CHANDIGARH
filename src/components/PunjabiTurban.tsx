@@ -13,26 +13,26 @@ export interface PunjabiTurbanProps {
   beardColor?: string
 }
 
-/**
- * Authentic Procedural Punjabi Turban (Patiala Shahi Dastar)
- * Carefully crafted with realistic human proportions:
- * - Flattened cloth ribbon pleats (larhs) with crisp pressed folds
- * - Snug cranial fit that completely covers the hair and hairline
- * - Sharp triangular forehead "Fifty" (under-wrap) resting neatly above the eyebrows
- * - Signature Patiala Shahi pinched central apex (nok)
- * - Regal rounded right-side sweep (golai) balancing the left cascading folds
- * - Broad, flattened crown (shaan) with longitudinal tuck seam
- * - Rear folded cloth drape (larr) at the nape
- * - Optional Royal Maharaja 18K gold Kalgi brooch with ruby gem and golden plume
- */
+
+
+
+
+
+
+
+
+
+
+
+
 export function PunjabiTurban({
   style = 'patiala',
-  color = '#b81d24', // Royal Red
-  fiftyColor = '#f5eedb', // Crisp Cream
+  color = '#b81d24', 
+  fiftyColor = '#f5eedb', 
   scale = 1.0,
   hasKalgi = false,
 }: PunjabiTurbanProps) {
-  // Procedural woven fabric texture for realistic turban cloth weave
+  
   const clothTexture = useMemo(() => {
     const size = 512
     const canvas = document.createElement('canvas')
@@ -43,7 +43,7 @@ export function PunjabiTurban({
     ctx.fillStyle = '#808080'
     ctx.fillRect(0, 0, size, size)
 
-    // Micro cloth twill weave pattern with diagonal ribbing
+    
     ctx.fillStyle = '#9c9c9c'
     for (let x = 0; x < size; x += 4) {
       for (let y = 0; y < size; y += 4) {
@@ -53,7 +53,7 @@ export function PunjabiTurban({
       }
     }
 
-    // Fine fabric thread lines
+    
     ctx.fillStyle = '#6a6a6a'
     for (let i = 0; i < size; i += 8) {
       ctx.fillRect(0, i, size, 1)
@@ -71,12 +71,12 @@ export function PunjabiTurban({
 
   return (
     <group scale={[scale, scale, scale]}>
-      {/* ---------------------------------------------------------------- */}
-      {/* 1. THE FIFTY (UNDER-TURBAN FOREHEAD PEAK)                         */}
-      {/* Sits right above eyebrows (Y = +0.118m, Z = +0.096m)              */}
-      {/* ---------------------------------------------------------------- */}
+       
+       
+       
+       
       <group position={[0, 0.118, 0.098]} rotation={[-0.22, 0, 0]}>
-        {/* Left wing of fifty */}
+         
         <mesh position={[-0.035, -0.004, 0]} rotation={[0, 0, 0.28]} castShadow>
           <boxGeometry args={[0.07, 0.016, 0.008]} />
           <meshStandardMaterial
@@ -86,7 +86,7 @@ export function PunjabiTurban({
             bumpScale={0.012}
           />
         </mesh>
-        {/* Right wing of fifty */}
+         
         <mesh position={[0.035, -0.004, 0]} rotation={[0, 0, -0.28]} castShadow>
           <boxGeometry args={[0.07, 0.016, 0.008]} />
           <meshStandardMaterial
@@ -96,7 +96,7 @@ export function PunjabiTurban({
             bumpScale={0.012}
           />
         </mesh>
-        {/* Central sharp V-notch joiner */}
+         
         <mesh position={[0, 0.004, 0.002]} rotation={[0, 0, Math.PI / 4]}>
           <boxGeometry args={[0.014, 0.014, 0.009]} />
           <meshStandardMaterial
@@ -108,10 +108,10 @@ export function PunjabiTurban({
         </mesh>
       </group>
 
-      {/* ---------------------------------------------------------------- */}
-      {/* 2. BASE CRANIAL CAP / JOORA COVERING DOME                        */}
-      {/* Snugly envelops all hair and quiff                               */}
-      {/* ---------------------------------------------------------------- */}
+       
+       
+       
+       
       <mesh position={[0, 0.158, 0.005]} scale={[1.12, 0.78, 1.2]} castShadow>
         <sphereGeometry args={[0.096, 24, 18]} />
         <meshStandardMaterial
@@ -122,7 +122,7 @@ export function PunjabiTurban({
         />
       </mesh>
 
-      {/* Front Forehead Hair Concealer (Covers any spiky hair fringe)     */}
+       
       <mesh position={[0, 0.138, 0.088]} scale={[1.05, 0.45, 0.4]} castShadow>
         <sphereGeometry args={[0.075, 16, 12]} />
         <meshStandardMaterial
@@ -133,13 +133,13 @@ export function PunjabiTurban({
         />
       </mesh>
 
-      {/* ---------------------------------------------------------------- */}
-      {/* 3. PATIALA SHAHI / MORNI: 6 FLATTENED FOLDED PLEATS (LARHS)      */}
-      {/* Scaled non-uniformly to form thin, pressed fabric bands          */}
-      {/* ---------------------------------------------------------------- */}
+       
+       
+       
+       
       {style !== 'dumalla' && (
         <group>
-          {/* Larh 1: Lowest Forehead Wrap (Crossing right-to-left) */}
+           
           <group
             position={[-0.01, 0.128, 0.024]}
             rotation={[
@@ -159,7 +159,7 @@ export function PunjabiTurban({
             </mesh>
           </group>
 
-          {/* Larh 2: Second Angled Pleat */}
+           
           <group
             position={[0.012, 0.146, 0.02]}
             rotation={[0.18, 0.18, style === 'morni' ? -0.18 : -0.14]}
@@ -175,7 +175,7 @@ export function PunjabiTurban({
             </mesh>
           </group>
 
-          {/* Larh 3: Third Pleat (Tiered step) */}
+           
           <group
             position={[-0.012, 0.164, 0.014]}
             rotation={[
@@ -195,7 +195,7 @@ export function PunjabiTurban({
             </mesh>
           </group>
 
-          {/* Larh 4: Fourth Upper Pleat */}
+           
           <group
             position={[0.012, 0.182, 0.008]}
             rotation={[0.13, 0.18, style === 'morni' ? -0.16 : -0.13]}
@@ -211,7 +211,7 @@ export function PunjabiTurban({
             </mesh>
           </group>
 
-          {/* Larh 5: Fifth Upper Pleat */}
+           
           <group
             position={[-0.01, 0.198, 0.002]}
             rotation={[0.1, -0.16, style === 'morni' ? 0.16 : 0.12]}
@@ -227,7 +227,7 @@ export function PunjabiTurban({
             </mesh>
           </group>
 
-          {/* Larh 6: Top Crown Rim Pleat */}
+           
           <group position={[0.006, 0.212, -0.005]} rotation={[0.06, 0.1, -0.08]}>
             <mesh scale={[1.14, 0.52, 1.12]} castShadow receiveShadow>
               <torusGeometry args={[0.092, 0.019, 16, 36]} />
@@ -240,10 +240,10 @@ export function PunjabiTurban({
             </mesh>
           </group>
 
-          {/* ------------------------------------------------------------ */}
-          {/* 4. THE RIGHT-SIDE REGAL SWEEP (GOLAI)                        */}
-          {/* Smooth, continuous rounded curve balancing the left pleats    */}
-          {/* ------------------------------------------------------------ */}
+           
+           
+           
+           
           <group position={[0.052, 0.162, 0.012]} rotation={[-0.04, 0.14, -0.18]}>
             <mesh scale={[0.42, 1.15, 1.3]} castShadow>
               <sphereGeometry args={[0.092, 18, 14]} />
@@ -256,10 +256,10 @@ export function PunjabiTurban({
             </mesh>
           </group>
 
-          {/* ------------------------------------------------------------ */}
-          {/* 5. FRONT CENTRAL NOSE-PEAK CREST (PATIALA SHAHI NOK / TIKON) */}
-          {/* Sits right above the fifty apex                              */}
-          {/* ------------------------------------------------------------ */}
+           
+           
+           
+           
           <mesh
             position={[0, 0.134, 0.1]}
             rotation={[style === 'morni' ? -0.38 : -0.28, 0, 0]}
@@ -277,9 +277,9 @@ export function PunjabiTurban({
         </group>
       )}
 
-      {/* ---------------------------------------------------------------- */}
-      {/* DUMALLA WARRIOR STYLE (TRADITIONAL CIRCULAR COILED DASTAR)        */}
-      {/* ---------------------------------------------------------------- */}
+       
+       
+       
       {style === 'dumalla' && (
         <group>
           {Array.from({ length: 6 }).map((_, i) => (
@@ -298,7 +298,7 @@ export function PunjabiTurban({
               />
             </mesh>
           ))}
-          {/* Steel Quoit (Chakar / Shastar) embedded in upper coil */}
+           
           <mesh position={[0, 0.195, 0.022]} rotation={[Math.PI / 2.3, 0, 0]} castShadow>
             <torusGeometry args={[0.082, 0.0045, 8, 36]} />
             <meshStandardMaterial
@@ -307,7 +307,7 @@ export function PunjabiTurban({
               roughness={0.18}
             />
           </mesh>
-          {/* Top Farla (Khalsa standard apex flap) */}
+           
           <mesh position={[0, 0.265, 0.005]} rotation={[-0.2, 0, 0]} castShadow>
             <boxGeometry args={[0.048, 0.085, 0.01]} />
             <meshStandardMaterial
@@ -319,10 +319,10 @@ export function PunjabiTurban({
         </group>
       )}
 
-      {/* ---------------------------------------------------------------- */}
-      {/* 6. TOP CROWN DOME / SHAAN (PAGG DOME)                            */}
-      {/* Broad, dignified, flattened crown                                */}
-      {/* ---------------------------------------------------------------- */}
+       
+       
+       
+       
       <mesh
         position={[0, style === 'dumalla' ? 0.245 : 0.218, -0.012]}
         scale={[1.18, style === 'dumalla' ? 0.65 : 0.38, 1.2]}
@@ -337,7 +337,7 @@ export function PunjabiTurban({
         />
       </mesh>
 
-      {/* Top center fabric tuck crease line */}
+       
       <mesh
         position={[0, style === 'dumalla' ? 0.258 : 0.23, -0.012]}
         rotation={[Math.PI / 2, 0, 0]}
@@ -346,12 +346,12 @@ export function PunjabiTurban({
         <meshStandardMaterial color={color} roughness={0.95} />
       </mesh>
 
-      {/* ---------------------------------------------------------------- */}
-      {/* 7. REAR TAPER & NAPE DRAPE (LARR TUCKED AT BACK)                 */}
-      {/* Folded cloth tail neatly draped along the nape of the neck       */}
-      {/* ---------------------------------------------------------------- */}
+       
+       
+       
+       
       <group position={[0, 0.078, -0.088]} rotation={[0.26, 0, 0]}>
-        {/* Upper tuck fold */}
+         
         <mesh scale={[0.85, 0.58, 0.72]} castShadow>
           <boxGeometry args={[0.082, 0.075, 0.032]} />
           <meshStandardMaterial
@@ -361,7 +361,7 @@ export function PunjabiTurban({
             bumpScale={0.02}
           />
         </mesh>
-        {/* Descending draped cloth flap */}
+         
         <mesh position={[0, -0.042, 0.006]} rotation={[0.1, 0, 0]} castShadow>
           <boxGeometry args={[0.062, 0.055, 0.011]} />
           <meshStandardMaterial
@@ -373,12 +373,12 @@ export function PunjabiTurban({
         </mesh>
       </group>
 
-      {/* ---------------------------------------------------------------- */}
-      {/* 8. ROYAL KALGI BROOCH (HERITAGE MAHARAJA ORNAMENT)               */}
-      {/* ---------------------------------------------------------------- */}
+       
+       
+       
       {showKalgi && (
         <group position={[0, 0.182, 0.104]} rotation={[-0.18, 0, 0]}>
-          {/* Golden sunburst filigree brooch base */}
+           
           <mesh rotation={[Math.PI / 2, 0, 0]} castShadow>
             <cylinderGeometry args={[0.014, 0.016, 0.005, 18]} />
             <meshStandardMaterial
@@ -388,7 +388,7 @@ export function PunjabiTurban({
             />
           </mesh>
 
-          {/* Micro pearl beaded halo rim */}
+           
           {Array.from({ length: 10 }).map((_, i) => {
             const angle = (i / 10) * Math.PI * 2
             return (
@@ -406,7 +406,7 @@ export function PunjabiTurban({
             )
           })}
 
-          {/* Center Royal Oval Ruby */}
+           
           <mesh position={[0, 0, 0.004]} scale={[0.85, 1.1, 0.6]}>
             <sphereGeometry args={[0.0075, 14, 10]} />
             <meshStandardMaterial
@@ -416,7 +416,7 @@ export function PunjabiTurban({
             />
           </mesh>
 
-          {/* Hanging Golden Pearl Drop (Latkan) */}
+           
           <group position={[0, -0.02, 0.003]}>
             <mesh>
               <sphereGeometry args={[0.0038, 10, 10]} />
@@ -432,9 +432,9 @@ export function PunjabiTurban({
             </mesh>
           </group>
 
-          {/* Upright Royal Feather Plume */}
+           
           <group position={[0, 0.022, 0.002]} rotation={[0, 0, 0.08]}>
-            {/* Center golden quill shaft */}
+             
             <mesh position={[0, 0.026, 0]}>
               <cylinderGeometry args={[0.0013, 0.002, 0.055, 8]} />
               <meshStandardMaterial
@@ -443,7 +443,7 @@ export function PunjabiTurban({
                 roughness={0.2}
               />
             </mesh>
-            {/* Feather fan blade */}
+             
             <mesh position={[0.003, 0.03, -0.002]} rotation={[0, 0, 0.12]}>
               <coneGeometry args={[0.011, 0.058, 10]} />
               <meshStandardMaterial
@@ -452,7 +452,7 @@ export function PunjabiTurban({
                 metalness={0.1}
               />
             </mesh>
-            {/* Golden tip */}
+             
             <mesh position={[0.005, 0.056, 0]}>
               <sphereGeometry args={[0.0022, 8, 8]} />
               <meshStandardMaterial color="#ffd700" metalness={0.95} />

@@ -22,7 +22,7 @@ export function PlazaPigeons({ playerPos }: PlazaPigeonsProps) {
   const meshRef = useRef<THREE.InstancedMesh>(null)
   const dummy = useMemo(() => new THREE.Object3D(), [])
 
-  // Create pigeon flock around the plaza
+  
   const pigeons = useMemo<PigeonData[]>(() => {
     const list: PigeonData[] = []
     for (let i = 0; i < 24; i++) {
@@ -45,7 +45,7 @@ export function PlazaPigeons({ playerPos }: PlazaPigeonsProps) {
     return list
   }, [])
 
-  // Single pigeon low-poly geometry
+  
   const pigeonGeometry = useMemo(() => {
     const geo = new THREE.ConeGeometry(0.12, 0.32, 6)
     geo.rotateX(Math.PI / 2)
@@ -64,7 +64,7 @@ export function PlazaPigeons({ playerPos }: PlazaPigeonsProps) {
     pigeons.forEach((pig, i) => {
       const distToPlayer = Math.hypot(pig.curX - p.x, pig.curZ - p.z)
 
-      // Scatter / fly away if player is close!
+      
       if (distToPlayer < 3.2 && !pig.flying) {
         pig.flying = true
         pig.flyTimer = 0
@@ -73,7 +73,7 @@ export function PlazaPigeons({ playerPos }: PlazaPigeonsProps) {
 
       if (pig.flying) {
         pig.flyTimer += dt
-        // Arc up then return down
+        
         pig.curY = 0.12 + Math.sin(Math.min(Math.PI, pig.flyTimer * 2.5)) * 2.5
         pig.curX += Math.sin(pig.yaw) * 4.5 * dt
         pig.curZ += Math.cos(pig.yaw) * 4.5 * dt
@@ -85,11 +85,11 @@ export function PlazaPigeons({ playerPos }: PlazaPigeonsProps) {
           pig.baseZ = pig.curZ
         }
       } else {
-        // Pecking animation on the ground
+        
         pig.peckPhase += dt * 5
         const bob = Math.abs(Math.sin(pig.peckPhase)) * 0.05
         pig.curY = 0.12 + bob
-        // Gentle wandering
+        
         if (Math.random() < 0.01) {
           pig.yaw += (Math.random() - 0.5) * 1.5
         }
