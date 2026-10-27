@@ -1,4 +1,4 @@
-import { memo, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { memo, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { Sky, Stars, useAnimations, useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
@@ -922,6 +922,7 @@ function Player({
   onReachWaypoint,
   cameraMode,
   onYawChange,
+  touchKeys,
 }: {
   driving: boolean
   position: { current: THREE.Vector3 }
@@ -931,6 +932,7 @@ function Player({
   onReachWaypoint: () => void
   cameraMode: number
   onYawChange: (yaw: number) => void
+  touchKeys: { current: Record<string, boolean> }
 }) {
   const body = useRef<THREE.Group>(null), yaw = useRef(0), keys = useRef<Record<string, boolean>>({}), cam = useThree(s => s.camera), vel = useRef(0), jumpY = useRef(0), jumpV = useRef(0), speedTimer = useRef(0)
   const cameraAim = useRef(new THREE.Vector3())
@@ -943,6 +945,7 @@ function Player({
   useEffect(() => {
     let isMouseDown = false
     let lastX = 0
+    let activeTouchId: number | null = null
 
     const down = (e: KeyboardEvent) => {
       keys.current[e.code] = true
@@ -954,7 +957,9 @@ function Player({
     const up = (e: KeyboardEvent) => (keys.current[e.code] = false)
     const clearInput = () => {
       keys.current = {}
+      touchKeys.current = {}
       isMouseDown = false
+      activeTouchId = null
     }
 
     const onMouseDown = (e: MouseEvent) => {
@@ -977,11 +982,32 @@ function Player({
       }
     }
 
+    const touchLookStart = (e: PointerEvent) => {
+      if (e.pointerType !== 'touch') return
+      if ((e.target as HTMLElement).closest('.mobile-controls, .top-nav, .bottom-bar, .interaction-prompt, .minimap-container, .quest-drawer, .modal-overlay, .postcard-overlay, .radio-panel, button, a, input, select')) return
+      activeTouchId = e.pointerId
+      lastX = e.clientX
+    }
+
+    const touchLookMove = (e: PointerEvent) => {
+      if (e.pointerType !== 'touch' || e.pointerId !== activeTouchId) return
+      yaw.current -= (e.clientX - lastX) * 0.007
+      lastX = e.clientX
+    }
+
+    const touchLookEnd = (e: PointerEvent) => {
+      if (e.pointerId === activeTouchId) activeTouchId = null
+    }
+
     window.addEventListener('keydown', down)
     window.addEventListener('keyup', up)
     window.addEventListener('mousedown', onMouseDown)
     window.addEventListener('mouseup', onMouseUp)
     window.addEventListener('mousemove', mouse)
+    window.addEventListener('pointerdown', touchLookStart)
+    window.addEventListener('pointermove', touchLookMove)
+    window.addEventListener('pointerup', touchLookEnd)
+    window.addEventListener('pointercancel', touchLookEnd)
     window.addEventListener('blur', clearInput)
     document.addEventListener('visibilitychange', clearInput)
     return () => {
@@ -990,14 +1016,18 @@ function Player({
       window.removeEventListener('mousedown', onMouseDown)
       window.removeEventListener('mouseup', onMouseUp)
       window.removeEventListener('mousemove', mouse)
+      window.removeEventListener('pointerdown', touchLookStart)
+      window.removeEventListener('pointermove', touchLookMove)
+      window.removeEventListener('pointerup', touchLookEnd)
+      window.removeEventListener('pointercancel', touchLookEnd)
       window.removeEventListener('blur', clearInput)
       document.removeEventListener('visibilitychange', clearInput)
     }
-  }, [driving, onYawChange])
+  }, [driving, onYawChange, touchKeys])
 
   useFrame((_, dt) => {
     dt = Math.min(dt, 0.05)
-    const k = keys.current, p = position.current
+    const k = { ...keys.current, ...touchKeys.current }, p = position.current
     if (headingRequest.current !== null) {
       yaw.current = headingRequest.current
       headingRequest.current = null
@@ -1157,6 +1187,44 @@ function Player({
         />
       </Suspense>
     </group>
+  )
+}
+
+function TouchHoldButton({
+  label,
+  code,
+  touchKeys,
+  onPress,
+  children,
+}: {
+  label: string
+  code: string
+  touchKeys: { current: Record<string, boolean> }
+  onPress?: () => void
+  children: ReactNode
+}) {
+  const release = () => {
+    touchKeys.current[code] = false
+  }
+
+  return (
+    <button
+      type="button"
+      className="touch-action touch-hold"
+      aria-label={label}
+      onPointerDown={event => {
+        event.preventDefault()
+        event.currentTarget.setPointerCapture(event.pointerId)
+        touchKeys.current[code] = true
+        onPress?.()
+      }}
+      onPointerUp={release}
+      onPointerCancel={release}
+      onLostPointerCapture={release}
+      onContextMenu={event => event.preventDefault()}
+    >
+      {children}
+    </button>
   )
 }
 
@@ -1344,6 +1412,7 @@ const Scene = memo(function Scene({
   onReachWaypoint,
   cameraMode,
   onYawChange,
+  touchKeys,
 }: {
   driving: boolean
   onEnter: () => void
@@ -1357,6 +1426,7 @@ const Scene = memo(function Scene({
   onReachWaypoint: () => void
   cameraMode: number
   onYawChange: (yaw: number) => void
+  touchKeys: { current: Record<string, boolean> }
 }) {
   const isNight = timeOfDay === 'night'
   const fountainActive = useGameStore(s => s.fountainActive)
@@ -1414,6 +1484,7 @@ const Scene = memo(function Scene({
         onReachWaypoint={onReachWaypoint}
         cameraMode={cameraMode}
         onYawChange={onYawChange}
+        touchKeys={touchKeys}
       />
 
       {/* Cinematic Post-Processing, Environment Reflections & Particle Mist */}
@@ -1425,6 +1496,7 @@ const Scene = memo(function Scene({
 
 export default function App() {
   const [driving, setDriving] = useState(false)
+  const touchKeys = useRef<Record<string, boolean>>({})
   const pos = useRef(new THREE.Vector3(0, 0, 12))
   const headingRequest = useRef<number | null>(null)
   const car = useRef(new THREE.Vector3(44, 0, -48))
@@ -1638,6 +1710,7 @@ export default function App() {
         onReachWaypoint={clearDestination}
         cameraMode={cameraMode}
         onYawChange={setPlayerYaw}
+        touchKeys={touchKeys}
       />
 
       <div className="crosshair">
@@ -1835,6 +1908,58 @@ export default function App() {
         waypoint={waypoint}
         onSetWaypoint={setDestination}
       />
+
+      <div className="mobile-controls" aria-label="Touch game controls">
+        <span className="touch-look-hint">DRAG THE SCENE TO LOOK</span>
+        <div className="touch-dpad" aria-label="Move or steer">
+          <span />
+          <TouchHoldButton label="Move forward" code="KeyW" touchKeys={touchKeys}>▲</TouchHoldButton>
+          <span />
+          <TouchHoldButton label="Move left" code="KeyA" touchKeys={touchKeys}>◀</TouchHoldButton>
+          <span className="touch-center">{driving ? 'DRIVE' : 'MOVE'}</span>
+          <TouchHoldButton label="Move right" code="KeyD" touchKeys={touchKeys}>▶</TouchHoldButton>
+          <span />
+          <TouchHoldButton label="Move backward" code="KeyS" touchKeys={touchKeys}>▼</TouchHoldButton>
+          <span />
+        </div>
+
+        <div className="touch-action-cluster">
+          {driving ? (
+            <>
+              <TouchHoldButton label="Sound horn" code="KeyH" touchKeys={touchKeys} onPress={() => sound.playHorn()}>HORN</TouchHoldButton>
+              <span className="touch-speed">{speed} KM/H</span>
+            </>
+          ) : (
+            <>
+              <TouchHoldButton label="Sprint" code="ShiftLeft" touchKeys={touchKeys}>RUN</TouchHoldButton>
+              <TouchHoldButton label="Jump" code="Space" touchKeys={touchKeys}>JUMP</TouchHoldButton>
+            </>
+          )}
+          {nearbyLandmark && (
+            <button
+              type="button"
+              className="touch-action touch-action-primary"
+              onClick={() => {
+                interactWithLandmark(nearbyLandmark.id)
+                sound.playDiscoveryChime()
+              }}
+            >
+              INTERACT
+            </button>
+          )}
+          {(driving || distToCar < 12) && (
+            <button type="button" className="touch-action touch-action-primary" onClick={enterVehicle}>
+              {driving ? 'EXIT CAR' : 'ENTER CAR'}
+            </button>
+          )}
+          <button type="button" className="touch-action" onClick={() => setCameraMode(mode => (mode + 1) % 4)}>
+            CAMERA {cameraMode + 1}/4
+          </button>
+          <button type="button" className="touch-action" onClick={() => setPaused(true)}>
+            PAUSE
+          </button>
+        </div>
+      </div>
 
       {/* Non-overlapping Bottom Controls Bar & Speedometer */}
       <footer className="bottom-bar">
