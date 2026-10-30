@@ -30,7 +30,7 @@ npm run preview
 | Shift | Sprint |
 | Space | Jump |
 | E | Interact with nearby landmarks, shops, and stalls |
-| F | Enter or leave the nearby sedan |
+| F | Enter or leave the selected nearby vehicle |
 | V | Cycle vehicle camera views |
 | H | Honk while driving |
 | Mouse drag / pointer lock | Look around |
@@ -38,6 +38,7 @@ npm run preview
 | Day / Sunset / Night controls | Change lighting and night-time scene details |
 | Punjabi Radio | Start a six-song playlist; the next official YouTube video queues automatically |
 | Esc | Pause or resume |
+| Touchscreen | On-screen movement pad and action buttons; drag the scene to turn |
 
 Additional interface buttons open character customization, shopping, and photo/postcard features. Their availability can depend on being near the relevant location.
 
@@ -45,7 +46,8 @@ Additional interface buttons open character customization, shopping, and photo/p
 
 - Walkable plaza with keyboard movement, jumping, camera follow, and waypoint navigation.
 - Building-footprint collision from mapped OSM geometry, broad-phase collision for authored scene meshes, and moving collision bounds for pedestrians and traffic. Movement slides along clear wall edges.
-- Driveable sedan, moving road traffic, and scooters.
+- Selectable driveable garage with Creta, Thar, Scorpio-N, WagonR, Venue, BMW X5, Jeep Wrangler, Fortuner, Lamborghini Urus, and a classic sedan. Each option changes the car silhouette, paint, collision bounds, acceleration, steering, and top speed. The newer car shapes are procedural stylized models, not manufacturer-provided 3D assets.
+- Moving road traffic and scooters.
 - Day, sunset, and night scene modes; Sector 17 landmarks, shopfronts, plaza pedestrians, lighting, fountain, and an underground passage reconstruction.
 - Character customization, simple interactions, procedural audio, and postcard capture.
 - Score Club entry and exit markers: step onto the pink circle outside or inside to move between the street and club floor.
@@ -58,6 +60,7 @@ Additional interface buttons open character customization, shopping, and photo/p
 - Zustand for local game state
 - `src/App.tsx`: game scene, controls, player, and traffic
 - `src/components/`: environment, characters, collision, UI, and interaction systems
+- `src/components/VehicleModel.tsx` and `vehicleCatalog.ts`: selectable garage vehicle models and driving specs
 - `public/sector17-osm.json`: local road and building-footprint data
 - `public/models/`: character and vehicle GLB models
 

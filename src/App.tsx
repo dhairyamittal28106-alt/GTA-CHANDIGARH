@@ -30,6 +30,8 @@ import { ShoppingModal } from './components/ShoppingModal'
 import { CharacterStudioModal } from './components/CharacterStudioModal'
 import { ElanteMallModal } from './components/ElanteMallModal'
 import { PunjabiRadio } from './components/PunjabiRadio'
+import { VehicleModel } from './components/VehicleModel'
+import { VEHICLES, type VehicleId, type VehicleSpec } from './components/vehicleCatalog'
 
 const origin: Point = [30.74105, 76.77902]
 type Point = [number, number]
@@ -750,23 +752,27 @@ function Car({
   carPosition,
   night,
   onEnter,
+  vehicleId,
 }: {
   driving: boolean
   position: { current: THREE.Vector3 }
   carPosition: { current: THREE.Vector3 }
   night: boolean
   onEnter: () => void
+  vehicleId: VehicleId
 }) {
   const car = useRef<THREE.Group>(null)
-  const model = useGLTF('/models/1980s-sedan.glb')
-  const wheels = useMemo(() => {
-    const found: THREE.Object3D[] = []
-    model.scene.traverse(node => {
-      if (node.name.includes('wheel_')) found.push(node)
-    })
-    return found
-  }, [model.scene])
+  const wheels = useRef<THREE.Object3D[]>([])
   const last = useRef(new THREE.Vector3(position.current.x, 0, position.current.z))
+  const vehicleSpec = VEHICLES[vehicleId]
+
+  useEffect(() => {
+    const found: THREE.Object3D[] = []
+    car.current?.traverse(node => {
+      if (node.name.startsWith('wheel_') && !node.name.includes('spare')) found.push(node)
+    })
+    wheels.current = found
+  }, [vehicleId])
 
   useEffect(() => () => removeMovingObstacle('player-car'), [])
 
@@ -774,7 +780,7 @@ function Car({
     if (driving) {
       const p = position.current, dx = p.x - last.current.x, dz = p.z - last.current.z
       const signed = dx * Math.sin(p.y) + dz * Math.cos(p.y)
-      for (const wheel of wheels) wheel.rotation.x += signed / 0.3
+      for (const wheel of wheels.current) wheel.rotation.x += signed / 0.3
       last.current.set(p.x, 0, p.z)
       carPosition.current.set(p.x, p.y, p.z)
     } else {
@@ -783,14 +789,14 @@ function Car({
     if (car.current) {
       car.current.position.set(carPosition.current.x, 0, carPosition.current.z)
       car.current.rotation.y = carPosition.current.y
-      setMovingObstacle('player-car', carPosition.current.x, carPosition.current.z, 1.65)
+      setMovingObstacle('player-car', carPosition.current.x, carPosition.current.z, Math.max(vehicleSpec.width * 0.72, vehicleSpec.length * 0.42))
     }
   })
 
   return (
     <group ref={car} position={[44, 0, -48]} onClick={onEnter} userData={{ sector17CollisionIgnore: true }}>
-      <primitive object={model.scene} />
-       
+      <VehicleModel vehicleId={vehicleId} />
+      {/* Car Headlights & Beam */}
       {night && (
         <group position={[0, 0.6, 2.0]}>
           <pointLight color="#fff3cc" intensity={25} distance={15} />
@@ -923,6 +929,7 @@ function Player({
   cameraMode,
   onYawChange,
   touchKeys,
+  vehicleId,
 }: {
   driving: boolean
   position: { current: THREE.Vector3 }
@@ -933,8 +940,10 @@ function Player({
   cameraMode: number
   onYawChange: (yaw: number) => void
   touchKeys: { current: Record<string, boolean> }
+  vehicleId: VehicleId
 }) {
   const body = useRef<THREE.Group>(null), yaw = useRef(0), keys = useRef<Record<string, boolean>>({}), cam = useThree(s => s.camera), vel = useRef(0), jumpY = useRef(0), jumpV = useRef(0), speedTimer = useRef(0)
+  const selectedVehicle = VEHICLES[vehicleId]
   const cameraAim = useRef(new THREE.Vector3())
   const cameraAimReady = useRef(false)
   const motion = useRef<MotionState['current']>('idle')
@@ -963,7 +972,7 @@ function Player({
     }
 
     const onMouseDown = (e: MouseEvent) => {
-      if ((e.target as HTMLElement).closest('button, .minimap-container, .hud-btn, .quest-drawer, .modal-card, .postcard-card, .radio-panel, a, input, select')) return
+      if ((e.target as HTMLElement).closest('button, .minimap-container, .hud-btn, .quest-drawer, .modal-card, .postcard-card, .radio-panel, .vehicle-garage-backdrop, .vehicle-garage, a, input, select')) return
       isMouseDown = true
       lastX = e.clientX
     }
@@ -984,7 +993,7 @@ function Player({
 
     const touchLookStart = (e: PointerEvent) => {
       if (e.pointerType !== 'touch') return
-      if ((e.target as HTMLElement).closest('.mobile-controls, .top-nav, .bottom-bar, .interaction-prompt, .minimap-container, .quest-drawer, .modal-overlay, .postcard-overlay, .radio-panel, button, a, input, select')) return
+      if ((e.target as HTMLElement).closest('.mobile-controls, .top-nav, .bottom-bar, .interaction-prompt, .minimap-container, .quest-drawer, .modal-overlay, .postcard-overlay, .radio-panel, .vehicle-garage-backdrop, .vehicle-garage, button, a, input, select')) return
       activeTouchId = e.pointerId
       lastX = e.clientX
     }
@@ -1093,8 +1102,8 @@ function Player({
     } else {
       const acc = (k.KeyW ? 1 : 0) - (k.KeyS ? 1 : 0)
       const steer = (k.KeyA ? 1 : 0) - (k.KeyD ? 1 : 0)
-      vel.current = THREE.MathUtils.damp(vel.current, acc * 18, 2.1, dt)
-      yaw.current += steer * Math.min(1, Math.abs(vel.current) / 5) * dt * 0.8
+      vel.current = THREE.MathUtils.damp(vel.current, acc * selectedVehicle.topSpeed, selectedVehicle.acceleration, dt)
+      yaw.current += steer * Math.min(1, Math.abs(vel.current) / 5) * dt * selectedVehicle.steering
 
       const nx = THREE.MathUtils.clamp(p.x + Math.sin(yaw.current) * vel.current * dt, -600, 600)
       const nz = THREE.MathUtils.clamp(p.z + Math.cos(yaw.current) * vel.current * dt, -550, 550)
@@ -1413,6 +1422,7 @@ const Scene = memo(function Scene({
   cameraMode,
   onYawChange,
   touchKeys,
+  vehicleId,
 }: {
   driving: boolean
   onEnter: () => void
@@ -1427,6 +1437,7 @@ const Scene = memo(function Scene({
   cameraMode: number
   onYawChange: (yaw: number) => void
   touchKeys: { current: Record<string, boolean> }
+  vehicleId: VehicleId
 }) {
   const isNight = timeOfDay === 'night'
   const fountainActive = useGameStore(s => s.fountainActive)
@@ -1473,6 +1484,7 @@ const Scene = memo(function Scene({
           carPosition={carPosition}
           night={isNight}
           onEnter={onEnter}
+          vehicleId={vehicleId}
         />
       </Suspense>
       <Player
@@ -1485,6 +1497,7 @@ const Scene = memo(function Scene({
         cameraMode={cameraMode}
         onYawChange={onYawChange}
         touchKeys={touchKeys}
+        vehicleId={vehicleId}
       />
 
        
@@ -1496,6 +1509,8 @@ const Scene = memo(function Scene({
 
 export default function App() {
   const [driving, setDriving] = useState(false)
+  const [vehicleId, setVehicleId] = useState<VehicleId>('creta')
+  const [garageOpen, setGarageOpen] = useState(false)
   const touchKeys = useRef<Record<string, boolean>>({})
   const pos = useRef(new THREE.Vector3(0, 0, 12))
   const headingRequest = useRef<number | null>(null)
@@ -1659,6 +1674,7 @@ export default function App() {
         if (activeModal) setModal(null)
         else if (turbanStudioOpen) setTurbanStudioOpen(false)
         else if (postcardOpen) setPostcardOpen(false)
+        else if (garageOpen) setGarageOpen(false)
         else {
           closeShop()
           toggleStudio(false)
@@ -1670,7 +1686,7 @@ export default function App() {
 
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
-  }, [nearbyLandmark, activeModal, turbanStudioOpen, postcardOpen, interactWithLandmark, setModal, isDancing, setIsDancing, openShop, closeShop, toggleStudio, toggleElanteMall, enterVehicle])
+  }, [nearbyLandmark, activeModal, turbanStudioOpen, postcardOpen, garageOpen, interactWithLandmark, setModal, isDancing, setIsDancing, openShop, closeShop, toggleStudio, toggleElanteMall, enterVehicle])
 
   const setDestination = useCallback((p: THREE.Vector3) => {
     waypointRef.current = p
@@ -1711,6 +1727,7 @@ export default function App() {
         cameraMode={cameraMode}
         onYawChange={setPlayerYaw}
         touchKeys={touchKeys}
+        vehicleId={vehicleId}
       />
 
       <div className="crosshair">
@@ -1795,6 +1812,9 @@ export default function App() {
           <button id="btn-sunset" className="hud-btn" title="Set golden-hour sunset lighting" onClick={() => setTimeOfDay('sunset')}>
             🌇 SUNSET
           </button>
+          <button id="btn-vehicle-garage" className="hud-btn garage-open-btn" onClick={() => setGarageOpen(true)}>
+            🚙 GARAGE · {VEHICLES[vehicleId].name.toUpperCase()}
+          </button>
           <button id="btn-audio" className="hud-btn" onClick={toggleSound}>
             {isMuted ? '🔇 MUTED' : '🔊 AUDIO'}
           </button>
@@ -1855,7 +1875,50 @@ export default function App() {
         </div>
       </header>
 
-       
+      {garageOpen && (
+        <div className="vehicle-garage-backdrop" onClick={() => setGarageOpen(false)}>
+          <section
+            className="vehicle-garage"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="vehicle-garage-title"
+            onClick={event => event.stopPropagation()}
+          >
+            <div className="vehicle-garage-heading">
+              <div>
+                <span className="garage-eyebrow">SECTOR 17 · YOUR GARAGE</span>
+                <h2 id="vehicle-garage-title">Choose your ride</h2>
+                <p>Selection changes the parked or currently driven vehicle.</p>
+              </div>
+              <button type="button" className="garage-close" onClick={() => setGarageOpen(false)} aria-label="Close garage">×</button>
+            </div>
+            <div className="vehicle-grid">
+              {(Object.values(VEHICLES) as VehicleSpec[]).map(vehicle => (
+                <button
+                  key={vehicle.id}
+                  type="button"
+                  className={`vehicle-card ${vehicleId === vehicle.id ? 'selected' : ''}`}
+                  aria-pressed={vehicleId === vehicle.id}
+                  onClick={() => {
+                    setVehicleId(vehicle.id)
+                    setGarageOpen(false)
+                  }}
+                >
+                  <span className="vehicle-swatch" style={{ background: vehicle.paint }} />
+                  <span className="vehicle-card-copy">
+                    <strong>{vehicle.name}</strong>
+                    <small>{vehicle.category}</small>
+                    <small>Top speed · {Math.round(vehicle.topSpeed * 3.6)} km/h</small>
+                  </span>
+                  <span className="vehicle-select-state">{vehicleId === vehicle.id ? 'SELECTED' : 'DRIVE'}</span>
+                </button>
+              ))}
+            </div>
+          </section>
+        </div>
+      )}
+
+      {/* Quest & Landmark Tracker Drawer */}
       {questDrawerOpen && (
         <aside className="quest-drawer">
           <div className="quest-drawer-title">
@@ -1888,7 +1951,7 @@ export default function App() {
       {!nearbyLandmark && distToCar < 12 && !driving && (
         <div className="interaction-prompt" onClick={enterVehicle}>
           <span className="key-badge">F</span>
-          <span className="prompt-text">Press [F] to enter 1980s Sedan</span>
+          <span className="prompt-text">Press [F] to enter {VEHICLES[vehicleId].name}</span>
         </div>
       )}
       {driving && (
@@ -1954,6 +2017,9 @@ export default function App() {
           )}
           <button type="button" className="touch-action" onClick={() => setCameraMode(mode => (mode + 1) % 4)}>
             CAMERA {cameraMode + 1}/4
+          </button>
+          <button type="button" className="touch-action" onClick={() => setGarageOpen(true)}>
+            GARAGE
           </button>
           <button type="button" className="touch-action" onClick={() => setPaused(true)}>
             PAUSE
