@@ -1710,6 +1710,35 @@ export default function App() {
     sound.playDiscoveryChime()
   }, [])
 
+  const chooseVehicle = useCallback((vehicle: VehicleSpec) => {
+    setVehicleId(vehicle.id)
+    if (!drivingRef.current) {
+      const heading = playerYaw
+      const spawnDistance = 4.8
+      const offsets = [Math.PI / 2, -Math.PI / 2, 0, Math.PI, Math.PI / 4, -Math.PI / 4, 3 * Math.PI / 4, -3 * Math.PI / 4]
+      const candidates = offsets.map(offset => {
+        const angle = heading + offset
+        return {
+          x: pos.current.x + Math.sin(angle) * spawnDistance,
+          z: pos.current.z + Math.cos(angle) * spawnDistance,
+        }
+      })
+      const spawn = candidates.find(candidate => !blocked(
+        candidate.x,
+        candidate.z,
+        Math.max(vehicle.width * 0.72, vehicle.length * 0.42),
+        'player-car'
+      )) ?? candidates[0]
+
+      car.current.set(spawn.x, heading, spawn.z)
+      pos.current.set(spawn.x, heading, spawn.z)
+      drivingRef.current = true
+      setDriving(true)
+      setHudPos({ player: pos.current.clone(), car: car.current.clone() })
+    }
+    setGarageOpen(false)
+  }, [playerYaw])
+
   return (
     <main className="game">
        
@@ -1888,7 +1917,7 @@ export default function App() {
               <div>
                 <span className="garage-eyebrow">SECTOR 17 · YOUR GARAGE</span>
                 <h2 id="vehicle-garage-title">Choose your ride</h2>
-                <p>Selection changes the parked or currently driven vehicle.</p>
+                <p>Choose a ride to bring it here and start driving. Selections while driving switch the car in place.</p>
               </div>
               <button type="button" className="garage-close" onClick={() => setGarageOpen(false)} aria-label="Close garage">×</button>
             </div>
@@ -1899,10 +1928,7 @@ export default function App() {
                   type="button"
                   className={`vehicle-card ${vehicleId === vehicle.id ? 'selected' : ''}`}
                   aria-pressed={vehicleId === vehicle.id}
-                  onClick={() => {
-                    setVehicleId(vehicle.id)
-                    setGarageOpen(false)
-                  }}
+                  onClick={() => chooseVehicle(vehicle)}
                 >
                   <span className="vehicle-swatch" style={{ background: vehicle.paint }} />
                   <span className="vehicle-card-copy">
@@ -1910,7 +1936,7 @@ export default function App() {
                     <small>{vehicle.category}</small>
                     <small>Top speed · {Math.round(vehicle.topSpeed * 3.6)} km/h</small>
                   </span>
-                  <span className="vehicle-select-state">{vehicleId === vehicle.id ? 'SELECTED' : 'DRIVE'}</span>
+                  <span className="vehicle-select-state">{vehicleId === vehicle.id && driving ? 'DRIVING' : 'DRIVE NOW'}</span>
                 </button>
               ))}
             </div>
