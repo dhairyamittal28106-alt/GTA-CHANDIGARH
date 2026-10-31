@@ -5,14 +5,17 @@ import * as THREE from 'three'
 import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js'
 import { PunjabiTurban } from './PunjabiTurban'
 import type { CharacterConfig } from './CharacterAndShopStore'
+import type { CombatAction } from './CombatTargets'
 
 interface DynamicCharacterProps {
   motion: { current: 'idle' | 'walk' | 'run' }
   velocity?: number
   isDancing?: boolean
   config: CharacterConfig
-  castShadow?: boolean
   enabled?: boolean
+  weaponEquipped?: boolean
+  combatAction?: Exclude<CombatAction, 'vehicle'> | null
+  combatActionTick?: number
 }
 
 
@@ -259,8 +262,10 @@ export function DynamicCharacter({
   velocity = 0,
   isDancing = false,
   config,
-  castShadow = true,
   enabled = true,
+  weaponEquipped = false,
+  combatAction = null,
+  combatActionTick = 0,
 }: DynamicCharacterProps) {
   const modelUrl =
     config.archetype === 'girl'
@@ -284,6 +289,9 @@ export function DynamicCharacter({
   const rightArmRef = useRef<THREE.Object3D | null>(null)
   const gaitBase = useRef(new Map<THREE.Object3D, { x: number; y: number; z: number }>())
   const gaitPhase = useRef(0)
+  const lastCombatTick = useRef(combatActionTick)
+  const combatStartedAt = useRef(-10)
+  const muzzleFlashRef = useRef<THREE.Mesh>(null)
 
   
   const headAccRef = useRef<THREE.Group>(null)
@@ -318,8 +326,8 @@ export function DynamicCharacter({
     model.traverse((node) => {
       if ((node as THREE.Mesh).isMesh) {
         const mesh = node as THREE.Mesh
-        mesh.castShadow = castShadow
-        mesh.receiveShadow = castShadow
+        mesh.castShadow = true
+        mesh.receiveShadow = true
       }
       if (node.name === 'Head') headBoneRef.current = node
       if (node.name === 'RightHand') rightHandBoneRef.current = node
@@ -337,18 +345,15 @@ export function DynamicCharacter({
       .forEach((bone) => {
         if (bone) gaitBase.current.set(bone, { x: bone.rotation.x, y: bone.position.y, z: bone.rotation.z })
       })
-    root.current?.traverse((node) => {
-      if ((node as THREE.Mesh).isMesh) {
-        const mesh = node as THREE.Mesh
-        mesh.castShadow = castShadow
-        mesh.receiveShadow = castShadow
-      }
-    })
-  }, [castShadow, config, model])
+  }, [config, model])
 
   useFrame(({ clock }, dt) => {
     if (!enabled) return
     dt = Math.min(dt, 0.05)
+    if (combatActionTick !== lastCombatTick.current) {
+      lastCombatTick.current = combatActionTick
+      combatStartedAt.current = clock.elapsedTime
+    }
     if (animationBindingsHealthy.current) {
       try {
         mixer.update(dt)
@@ -459,6 +464,26 @@ export function DynamicCharacter({
       }
     }
 
+    const actionAge = clock.elapsedTime - combatStartedAt.current
+    const actionLength = combatAction === 'kick' ? 0.62 : combatAction === 'shoot' ? 0.24 : 0.46
+    const actionStrength = actionAge >= 0 && actionAge < actionLength
+      ? Math.sin((actionAge / actionLength) * Math.PI)
+      : 0
+    if (actionStrength > 0) {
+      if (combatAction === 'punch' && rightArmRef.current) {
+        rightArmRef.current.rotation.x -= 1.25 * actionStrength
+        rightArmRef.current.rotation.z += 0.18 * actionStrength
+      } else if (combatAction === 'kick' && rightUpLegRef.current) {
+        rightUpLegRef.current.rotation.x -= 1.15 * actionStrength
+      } else if (combatAction === 'shoot' && rightArmRef.current) {
+        rightArmRef.current.rotation.x -= 0.55 * actionStrength
+        rightArmRef.current.rotation.z += 0.1 * actionStrength
+      }
+    }
+    if (muzzleFlashRef.current) {
+      muzzleFlashRef.current.visible = weaponEquipped && combatAction === 'shoot' && actionAge >= 0 && actionAge < 0.09
+    }
+
     
     if (root.current) {
       if (headBoneRef.current && headAccRef.current) {
@@ -526,6 +551,22 @@ export function DynamicCharacter({
 
        
       <group ref={handAccRef} position={[0.4, 0.8, 0]}>
+        {weaponEquipped && (
+          <group position={[0.02, 0.02, 0.08]}>
+            <mesh castShadow>
+              <boxGeometry args={[0.085, 0.12, 0.28]} />
+              <meshStandardMaterial color="#252a30" metalness={0.72} roughness={0.34} />
+            </mesh>
+            <mesh position={[0, -0.09, -0.02]} rotation={[-0.24, 0, 0]}>
+              <boxGeometry args={[0.07, 0.16, 0.095]} />
+              <meshStandardMaterial color="#171a1e" roughness={0.72} />
+            </mesh>
+            <mesh ref={muzzleFlashRef} visible={false} position={[0, 0, 0.2]}>
+              <sphereGeometry args={[0.075, 8, 6]} />
+              <meshBasicMaterial color="#ffd66e" toneMapped={false} />
+            </mesh>
+          </group>
+        )}
          
         {config.hasShoppingBags && <ShoppingBags />}
 

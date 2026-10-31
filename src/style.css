@@ -742,6 +742,36 @@ html, body, #root {
   box-shadow: 0 0 16px rgba(56, 189, 248, 0.2);
 }
 
+.combat-hud {
+  position: absolute;
+  z-index: 16;
+  top: 104px;
+  left: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 8px 11px;
+  border: 1px solid rgba(245, 178, 73, 0.42);
+  border-radius: 7px;
+  background: rgba(14, 19, 22, 0.78);
+  color: #f6d28c;
+  font: 700 10px var(--font-mono);
+  letter-spacing: 0.06em;
+  pointer-events: none;
+  backdrop-filter: blur(10px);
+}
+
+.combat-hud b {
+  margin-left: 8px;
+  color: #fff;
+}
+
+.combat-hud small {
+  color: #f8f5ef;
+  font-size: 9px;
+  letter-spacing: 0.02em;
+}
+
 .mobile-controls {
   display: none;
 }
@@ -843,6 +873,11 @@ html, body, #root {
 }
 
 @media (pointer: coarse), (max-width: 680px) {
+  .combat-hud {
+    top: max(96px, calc(env(safe-area-inset-top) + 86px));
+    left: max(10px, env(safe-area-inset-left));
+  }
+
   .top-nav {
     top: max(8px, env(safe-area-inset-top));
     left: max(8px, env(safe-area-inset-left));

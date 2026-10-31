@@ -33,6 +33,10 @@ npm run preview
 | F | Enter or leave the selected nearby vehicle |
 | V | Cycle vehicle camera views |
 | H | Honk while driving |
+| Q | Equip or holster the pistol while on foot |
+| R or left click while mouse is locked | Fire one round at the nearest target in the crosshair direction |
+| X | Reload the pistol to 12 rounds |
+| J / K | Punch / kick the nearest person in front of the character |
 | Mouse drag / pointer lock | Look around |
 | Click the minimap | Set a walking waypoint |
 | Day / Sunset / Night controls | Change lighting and night-time scene details |
@@ -48,6 +52,7 @@ Additional interface buttons open character customization, shopping, and photo/p
 - Building-footprint collision from mapped OSM geometry, broad-phase collision for authored scene meshes, and moving collision bounds for pedestrians and traffic. Movement slides along clear wall edges.
 - Selectable driveable garage using credited 3D models for Hyundai Creta, Suzuki Swift (2022), Toyota Fortuner, Jeep Wrangler, BMW X5 M Competition, Lamborghini Urus, and Ferrari F8 Tributo. Vehicle dimensions, handling, lighting, and collision bounds are fitted to each model. Mahindra Thar, Scorpio-N, Maruti Suzuki WagonR, Maruti Suzuki Alto 800, and Hyundai Venue remain unavailable until authentic, redistributable models are sourced; the garage does not substitute generic car shapes for them.
 - Moving road traffic using the credited Fortuner, Wrangler, Urus, and Swift models, alongside scooters.
+- Non-graphic combat: pedestrians react to punches, kicks, pistol shots, and fast vehicle impacts; they briefly go down and return after a short respawn. Traffic vehicles take damage and burst into a brief stylized explosion after repeated hits.
 - Day, sunset, and night scene modes; Sector 17 landmarks, shopfronts, plaza pedestrians, lighting, fountain, and an underground passage reconstruction.
 - Character customization, simple interactions, procedural audio, and postcard capture.
 - Score Club entry and exit markers: step onto the pink circle outside or inside to move between the street and club floor.

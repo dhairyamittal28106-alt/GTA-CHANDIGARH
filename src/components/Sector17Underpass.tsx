@@ -67,7 +67,7 @@ function PassageVisitor({ index, baseConfig, playerPos }: { index: number; baseC
   return (
     <group ref={actor} userData={{ sector17CollisionIgnore: true }}>
       <Suspense fallback={null}>
-        <DynamicCharacter motion={motion} velocity={1.05} config={config} castShadow={false} />
+        <DynamicCharacter motion={motion} velocity={1.05} config={config} />
       </Suspense>
     </group>
   )

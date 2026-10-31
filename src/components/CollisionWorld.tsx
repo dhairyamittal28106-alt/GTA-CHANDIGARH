@@ -4,12 +4,12 @@ import * as THREE from 'three'
 
 const CELL_SIZE = 32
 const staticGrid = new Map<string, THREE.Box3[]>()
-const movingObstacles = new Map<string, { x: number; z: number; radius: number }>()
+const movingObstacles = new Map<string, { x: number; z: number; radius: number; pedestrian: boolean }>()
 
 const cellKey = (x: number, z: number) => `${x},${z}`
 
 export function setMovingObstacle(id: string, x: number, z: number, radius: number) {
-  movingObstacles.set(id, { x, z, radius })
+  movingObstacles.set(id, { x, z, radius, pedestrian: id.includes('pedestrian') })
 }
 
 export function removeMovingObstacle(id: string) {
@@ -74,7 +74,7 @@ export function SceneObstacleCapture() {
   return null
 }
 
-export function hitsSceneObstacle(x: number, z: number, radius: number, ignoreId?: string) {
+export function hitsSceneObstacle(x: number, z: number, radius: number, ignoreId?: string, ignorePedestrians = false) {
   const minX = Math.floor((x - radius) / CELL_SIZE), maxX = Math.floor((x + radius) / CELL_SIZE)
   const minZ = Math.floor((z - radius) / CELL_SIZE), maxZ = Math.floor((z + radius) / CELL_SIZE)
   for (let gx = minX; gx <= maxX; gx++) {
@@ -89,6 +89,7 @@ export function hitsSceneObstacle(x: number, z: number, radius: number, ignoreId
   }
   for (const [id, obstacle] of movingObstacles) {
     if (id === ignoreId) continue
+    if (ignorePedestrians && obstacle.pedestrian) continue
     const reach = radius + obstacle.radius
     const dx = x - obstacle.x, dz = z - obstacle.z
     if (dx * dx + dz * dz < reach * reach) return true

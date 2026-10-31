@@ -1,6 +1,6 @@
 import { memo, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { Sky, Stars, useAnimations, useGLTF } from '@react-three/drei'
+import { Sky, Sparkles, Stars, useAnimations, useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
 import * as SkeletonUtils from 'three/addons/utils/SkeletonUtils.js'
 import './style.css'
@@ -31,6 +31,7 @@ import { CharacterStudioModal } from './components/CharacterStudioModal'
 import { ElanteMallModal } from './components/ElanteMallModal'
 import { PunjabiRadio } from './components/PunjabiRadio'
 import { VehicleModel } from './components/VehicleModel'
+import { attackNearestTarget, hitPedestriansWithVehicle, registerCombatTarget, type CombatAction } from './components/CombatTargets'
 import { REQUESTED_MODELS_PENDING, VEHICLES, type VehicleId, type VehicleSpec } from './components/vehicleCatalog'
 
 const origin: Point = [30.74105, 76.77902]
@@ -69,8 +70,8 @@ function circleTouchesPolygon(x: number, z: number, radius: number, points: THRE
   return false
 }
 
-function blocked(x: number, z: number, radius: number, ignoreId?: string) {
-  if (hitsSceneObstacle(x, z, radius, ignoreId)) return true
+function blocked(x: number, z: number, radius: number, ignoreId?: string, ignorePedestrians = false) {
+  if (hitsSceneObstacle(x, z, radius, ignoreId, ignorePedestrians)) return true
   
   
   const seen = new Set<Footprint>()
@@ -823,17 +824,87 @@ function Car({
 }
 
 const trafficColors = ['#171d25', '#faf7ef', '#c9222c', '#e4b900', '#243c69', '#8a9095']
-const trafficVehicleIds: VehicleId[] = ['fortuner', 'jeep-wrangler', 'lamborghini-urus']
+const trafficVehicleIds: VehicleId[] = ['fortuner', 'jeep-wrangler', 'lamborghini-urus', 'suzuki-swift']
+
+function VehicleBlast({ position }: { position: [number, number, number] }) {
+  const flame = useRef<THREE.Mesh>(null)
+  const flameMaterial = useRef<THREE.MeshBasicMaterial>(null)
+  const start = useRef<number | null>(null)
+
+  useFrame(({ clock }) => {
+    if (!flame.current || !flameMaterial.current) return
+    if (start.current === null) start.current = clock.elapsedTime
+    const age = clock.elapsedTime - start.current
+    flame.current.visible = age < 0.9
+    flame.current.scale.setScalar(0.45 + age * 2.1)
+    flameMaterial.current.opacity = THREE.MathUtils.clamp(1 - age / 0.9, 0, 1)
+  })
+
+  return (
+    <group position={position}>
+      <mesh ref={flame} position={[0, 1.1, 0]}>
+        <sphereGeometry args={[1, 16, 12]} />
+        <meshBasicMaterial ref={flameMaterial} color="#ff7a22" transparent depthWrite={false} toneMapped={false} />
+      </mesh>
+      <Sparkles count={18} scale={[3.4, 3.2, 3.4]} position={[0, 1.1, 0]} color="#ffd070" size={5} speed={3} />
+    </group>
+  )
+}
+
 function TrafficVehicle({ index }: { index: number }) {
   const ref = useRef<THREE.Group>(null)
   const wheelRotationDelta = useRef(0)
   const previousX = useRef<number | null>(null)
+  const elapsed = useRef(0)
+  const durability = useRef(100)
+  const disabledUntil = useRef(0)
+  const blastSequence = useRef(0)
+  const [blast, setBlast] = useState<{ key: number; position: [number, number, number] } | null>(null)
   const scooter = index >= 4, color = trafficColors[index % trafficColors.length]
   const vehicleId = trafficVehicleIds[index % trafficVehicleIds.length]
   const vehicleSpec = VEHICLES[vehicleId]
-  useEffect(() => () => removeMovingObstacle(`traffic-${index}`), [index])
+  useEffect(() => {
+    const unregister = registerCombatTarget({
+      id: `traffic-${index}`,
+      kind: 'vehicle',
+      radius: Math.max(vehicleSpec.width * 0.7, vehicleSpec.length * 0.38),
+      getPosition: target => ref.current?.getWorldPosition(target) ?? target.set(0, -1000, 0),
+      receiveHit: action => {
+        if (!ref.current || elapsed.current < disabledUntil.current) return false
+        durability.current -= action === 'shoot' ? 40 : action === 'kick' ? 28 : 18
+        if (durability.current <= 0) {
+          durability.current = 100
+          disabledUntil.current = elapsed.current + 3.2
+          setBlast({
+            key: ++blastSequence.current,
+            position: [ref.current.position.x, 0, ref.current.position.z],
+          })
+          return 'down'
+        }
+        return 'hit'
+      },
+    })
+    return () => {
+      unregister()
+      removeMovingObstacle(`traffic-${index}`)
+    }
+  }, [index, vehicleSpec])
+
+  useEffect(() => {
+    if (!blast) return
+    const timeout = window.setTimeout(() => setBlast(null), 900)
+    return () => window.clearTimeout(timeout)
+  }, [blast])
+
   useFrame(({ clock }) => {
     if (!ref.current) return
+    elapsed.current = clock.elapsedTime
+    if (clock.elapsedTime < disabledUntil.current) {
+      ref.current.visible = false
+      removeMovingObstacle(`traffic-${index}`)
+      return
+    }
+    ref.current.visible = true
     const dir = index % 2 ? 1 : -1
     const z = (index % 2 ? 1 : -1) * (index < 4 ? 88 : 103)
     const x = THREE.MathUtils.euclideanModulo(clock.elapsedTime * (index % 3 === 0 ? 8 : 5) * dir + index * 48 + 130, 260) - 130
@@ -846,28 +917,31 @@ function TrafficVehicle({ index }: { index: number }) {
   })
 
   return (
-    <group ref={ref} userData={{ sector17CollisionIgnore: true }}>
-      {scooter ? (
-        <>
-          <mesh position={[0, 0.72, 0]} castShadow>
-            <capsuleGeometry args={[0.22, 0.9, 4, 8]} />
-            <meshStandardMaterial color={color} roughness={0.62} />
-          </mesh>
-          <mesh position={[0.08, 1.02, -0.1]}>
-            <sphereGeometry args={[0.2, 10, 8]} />
-            <meshStandardMaterial color="#202326" />
-          </mesh>
-          {[-0.62, 0.62].map(z => (
-            <mesh key={z} position={[0, 0.22, z]} rotation={[0, 0, Math.PI / 2]}>
-              <cylinderGeometry args={[0.23, 0.23, 0.12, 12]} />
-              <meshStandardMaterial color="#222" />
+    <>
+      <group ref={ref} userData={{ sector17CollisionIgnore: true }}>
+        {scooter ? (
+          <>
+            <mesh position={[0, 0.72, 0]} castShadow>
+              <capsuleGeometry args={[0.22, 0.9, 4, 8]} />
+              <meshStandardMaterial color={color} roughness={0.62} />
             </mesh>
-          ))}
-        </>
-      ) : (
-        <VehicleModel vehicleId={vehicleId} wheelRotationDelta={wheelRotationDelta} castShadow={false} />
-      )}
-    </group>
+            <mesh position={[0.08, 1.02, -0.1]}>
+              <sphereGeometry args={[0.2, 10, 8]} />
+              <meshStandardMaterial color="#202326" />
+            </mesh>
+            {[-0.62, 0.62].map(z => (
+              <mesh key={z} position={[0, 0.22, z]} rotation={[0, 0, Math.PI / 2]}>
+                <cylinderGeometry args={[0.23, 0.23, 0.12, 12]} />
+                <meshStandardMaterial color="#222" />
+              </mesh>
+            ))}
+          </>
+        ) : (
+          <VehicleModel vehicleId={vehicleId} wheelRotationDelta={wheelRotationDelta} />
+        )}
+      </group>
+      {blast && <VehicleBlast key={blast.key} position={blast.position} />}
+    </>
   )
 }
 function TrafficFleet() {
@@ -907,6 +981,11 @@ function Player({
   onYawChange,
   touchKeys,
   vehicleId,
+  weaponEquipped,
+  combatAction,
+  combatActionTick,
+  onCombatAction,
+  onVehicleImpact,
 }: {
   driving: boolean
   position: { current: THREE.Vector3 }
@@ -918,6 +997,11 @@ function Player({
   onYawChange: (yaw: number) => void
   touchKeys: { current: Record<string, boolean> }
   vehicleId: VehicleId
+  weaponEquipped: boolean
+  combatAction: Exclude<CombatAction, 'vehicle'> | null
+  combatActionTick: number
+  onCombatAction: (action: Exclude<CombatAction, 'vehicle'>, yaw: number) => void
+  onVehicleImpact: () => void
 }) {
   const body = useRef<THREE.Group>(null), yaw = useRef(0), keys = useRef<Record<string, boolean>>({}), cam = useThree(s => s.camera), vel = useRef(0), jumpY = useRef(0), jumpV = useRef(0), speedTimer = useRef(0)
   const selectedVehicle = VEHICLES[vehicleId]
@@ -935,6 +1019,9 @@ function Player({
 
     const down = (e: KeyboardEvent) => {
       keys.current[e.code] = true
+      if (!e.repeat && !driving && e.code === 'KeyJ') onCombatAction('punch', yaw.current)
+      if (!e.repeat && !driving && e.code === 'KeyK') onCombatAction('kick', yaw.current)
+      if (!e.repeat && !driving && weaponEquipped && e.code === 'KeyR') onCombatAction('shoot', yaw.current)
       
       if (e.code === 'KeyH' && driving) {
         sound.playHorn()
@@ -950,6 +1037,11 @@ function Player({
 
     const onMouseDown = (e: MouseEvent) => {
       if ((e.target as HTMLElement).closest('button, .minimap-container, .hud-btn, .quest-drawer, .modal-card, .postcard-card, .radio-panel, .vehicle-garage-backdrop, .vehicle-garage, a, input, select')) return
+      if (document.pointerLockElement && e.button === 0) {
+        if (weaponEquipped && !driving) onCombatAction('shoot', yaw.current)
+        return
+      }
+      if (e.button !== 0) return
       isMouseDown = true
       lastX = e.clientX
     }
@@ -1009,7 +1101,7 @@ function Player({
       window.removeEventListener('blur', clearInput)
       document.removeEventListener('visibilitychange', clearInput)
     }
-  }, [driving, onYawChange, touchKeys])
+  }, [driving, onCombatAction, onYawChange, touchKeys, weaponEquipped])
 
   useFrame((_, dt) => {
     dt = Math.min(dt, 0.05)
@@ -1085,13 +1177,16 @@ function Player({
       const nx = THREE.MathUtils.clamp(p.x + Math.sin(yaw.current) * vel.current * dt, -600, 600)
       const nz = THREE.MathUtils.clamp(p.z + Math.cos(yaw.current) * vel.current * dt, -550, 550)
 
-      if (!blocked(nx, nz, 1.25, 'player-car')) updatePosition(p, nx, nz, yaw.current)
+      if (!blocked(nx, nz, 1.25, 'player-car', true)) updatePosition(p, nx, nz, yaw.current)
       else {
-        const slideX = !blocked(nx, p.z, 1.25, 'player-car')
-        const slideZ = !blocked(p.x, nz, 1.25, 'player-car')
+        const slideX = !blocked(nx, p.z, 1.25, 'player-car', true)
+        const slideZ = !blocked(p.x, nz, 1.25, 'player-car', true)
         if (slideX) updatePosition(p, nx, p.z, yaw.current)
         if (slideZ) updatePosition(p, slideX ? nx : p.x, nz, yaw.current)
         if (!slideX && !slideZ) vel.current = 0
+      }
+      if (hitPedestriansWithVehicle(p, Math.max(selectedVehicle.width * 0.62, selectedVehicle.length * 0.43), Math.abs(vel.current)) > 0) {
+        onVehicleImpact()
       }
       motion.current = 'idle'
     }
@@ -1171,6 +1266,9 @@ function Player({
           isDancing={isDancing}
           config={charConfig}
           enabled={!driving}
+          weaponEquipped={weaponEquipped}
+          combatAction={combatAction}
+          combatActionTick={combatActionTick}
         />
       </Suspense>
     </group>
@@ -1217,7 +1315,38 @@ function TouchHoldButton({
 
 function CrowdWalker({ index }: { index: number }) {
   const actor = useRef<THREE.Group>(null), motion = useRef<MotionState['current']>('walk')
+  const gameTime = useRef(0)
+  const health = useRef(100)
+  const staggerUntil = useRef(0)
+  const downUntil = useRef(0)
+  const downStartedAt = useRef(0)
+  const downPosition = useRef(new THREE.Vector3())
+  const fleeUntil = useRef(0)
+  const lastHit = useRef(-1)
   useEffect(() => () => removeMovingObstacle(`plaza-pedestrian-${index}`), [index])
+  useEffect(() => registerCombatTarget({
+    id: `plaza-pedestrian-${index}`,
+    kind: 'pedestrian',
+    radius: 0.72,
+    getPosition: target => actor.current?.getWorldPosition(target) ?? target.set(0, -1000, 0),
+    receiveHit: action => {
+      const now = gameTime.current
+      if (!actor.current || now < downUntil.current || now - lastHit.current < 0.55) return false
+      lastHit.current = now
+      health.current -= action === 'vehicle' ? 100 : action === 'shoot' ? 55 : action === 'kick' ? 42 : 28
+      if (health.current <= 0) {
+        health.current = 100
+        downStartedAt.current = now
+        downUntil.current = now + 5
+        actor.current.getWorldPosition(downPosition.current)
+        return 'down'
+      } else {
+        staggerUntil.current = now + 0.7
+        fleeUntil.current = now + 2.2
+      }
+      return 'hit'
+    },
+  }), [index])
   const params = useMemo(
     () => ({
       phase: (index * Math.PI * 2) / 8 + 0.35,
@@ -1264,14 +1393,33 @@ function CrowdWalker({ index }: { index: number }) {
 
   useFrame(({ clock }) => {
     if (!actor.current) return
+    gameTime.current = clock.elapsedTime
     const t = clock.elapsedTime * params.speed * params.direction + params.phase
     const x = Math.cos(t) * params.rx
     const z = Math.sin(t) * params.rz
     const dx = -Math.sin(t) * params.rx * params.speed * params.direction
     const dz = Math.cos(t) * params.rz * params.speed * params.direction
     const gy = getGroundY(x, z)
+    const down = clock.elapsedTime < downUntil.current
+    if (down) {
+      const visibleKnockdown = clock.elapsedTime - downStartedAt.current < 0.85
+      actor.current.visible = visibleKnockdown
+      if (visibleKnockdown) {
+        actor.current.position.copy(downPosition.current)
+        actor.current.rotation.set(0, actor.current.rotation.y, Math.PI / 2)
+        setMovingObstacle(`plaza-pedestrian-${index}`, downPosition.current.x, downPosition.current.z, 0.58)
+      } else {
+        removeMovingObstacle(`plaza-pedestrian-${index}`)
+      }
+      motion.current = 'idle'
+      return
+    }
+    actor.current.visible = true
+    const staggered = clock.elapsedTime < staggerUntil.current
+    const fleeing = clock.elapsedTime < fleeUntil.current && !staggered
     actor.current.position.set(x, gy, z)
-    actor.current.rotation.y = Math.atan2(dx, dz)
+    actor.current.rotation.set(staggered ? 0.14 : 0, Math.atan2(dx, dz), 0)
+    motion.current = staggered ? 'idle' : fleeing ? 'run' : 'walk'
     setMovingObstacle(`plaza-pedestrian-${index}`, x, z, 0.58)
   })
 
@@ -1282,7 +1430,6 @@ function CrowdWalker({ index }: { index: number }) {
           motion={motion}
           velocity={1.8}
           config={walkerConfig}
-          castShadow={false}
         />
       </Suspense>
     </group>
@@ -1370,7 +1517,7 @@ function DayNightRig({ timeOfDay }: { timeOfDay: TimeOfDay }) {
       {timeOfDay !== 'night' ? (
         <Sky sunPosition={cfg.sunPos} turbidity={timeOfDay === 'sunset' ? 6 : 1.8} rayleigh={timeOfDay === 'sunset' ? 4 : 2.6} />
       ) : (
-        <Stars radius={120} depth={50} count={350} factor={3} saturation={0} fade speed={0.15} />
+        <Stars radius={120} depth={50} count={700} factor={3} saturation={0} fade speed={0.15} />
       )}
       <ambientLight ref={ambient} intensity={0.3} />
       <hemisphereLight ref={hemi} args={['#c9e8fa', '#566b47', 0.72]} />
@@ -1380,8 +1527,8 @@ function DayNightRig({ timeOfDay }: { timeOfDay: TimeOfDay }) {
         color="#fff4e0"
         intensity={2.8}
         castShadow
-        shadow-mapSize-width={1024}
-        shadow-mapSize-height={1024}
+        shadow-mapSize-width={2048}
+        shadow-mapSize-height={2048}
       />
     </>
   )
@@ -1402,6 +1549,11 @@ const Scene = memo(function Scene({
   onYawChange,
   touchKeys,
   vehicleId,
+  weaponEquipped,
+  combatAction,
+  combatActionTick,
+  onCombatAction,
+  onVehicleImpact,
 }: {
   driving: boolean
   onEnter: () => void
@@ -1417,6 +1569,11 @@ const Scene = memo(function Scene({
   onYawChange: (yaw: number) => void
   touchKeys: { current: Record<string, boolean> }
   vehicleId: VehicleId
+  weaponEquipped: boolean
+  combatAction: Exclude<CombatAction, 'vehicle'> | null
+  combatActionTick: number
+  onCombatAction: (action: Exclude<CombatAction, 'vehicle'>, yaw: number) => void
+  onVehicleImpact: () => void
 }) {
   const isNight = timeOfDay === 'night'
   const fountainActive = useGameStore(s => s.fountainActive)
@@ -1424,7 +1581,7 @@ const Scene = memo(function Scene({
   return (
     <Canvas
       camera={{ position: [0, 4.15, -30], fov: 62 }}
-      dpr={[1, 1.1]}
+      dpr={[1, 1.25]}
       gl={{
         antialias: true,
         powerPreference: 'high-performance',
@@ -1477,6 +1634,11 @@ const Scene = memo(function Scene({
         onYawChange={onYawChange}
         touchKeys={touchKeys}
         vehicleId={vehicleId}
+        weaponEquipped={weaponEquipped}
+        combatAction={combatAction}
+        combatActionTick={combatActionTick}
+        onCombatAction={onCombatAction}
+        onVehicleImpact={onVehicleImpact}
       />
 
        
@@ -1520,6 +1682,15 @@ export default function App() {
   const [questDrawerOpen, setQuestDrawerOpen] = useState(false)
   const [postcardOpen, setPostcardOpen] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
+  const [weaponEquipped, setWeaponEquipped] = useState(false)
+  const [ammo, setAmmo] = useState(12)
+  const [combatAction, setCombatAction] = useState<Exclude<CombatAction, 'vehicle'> | null>(null)
+  const [combatActionTick, setCombatActionTick] = useState(0)
+  const [combatMessage, setCombatMessage] = useState('')
+  const weaponEquippedRef = useRef(false)
+  const ammoRef = useRef(12)
+  const combatMessageTimer = useRef<number | null>(null)
+  const vehicleImpactTimer = useRef(0)
 
   
   const nearbyLandmark = useMemo(() => {
@@ -1539,6 +1710,73 @@ export default function App() {
     drivingRef.current = driving
     distanceToCarRef.current = distToCar
   }, [driving, distToCar])
+
+  const showCombatMessage = useCallback((message: string) => {
+    setCombatMessage(message)
+    if (combatMessageTimer.current !== null) window.clearTimeout(combatMessageTimer.current)
+    combatMessageTimer.current = window.setTimeout(() => {
+      combatMessageTimer.current = null
+      setCombatMessage('')
+    }, 1800)
+  }, [])
+
+  useEffect(() => () => {
+    if (combatMessageTimer.current !== null) window.clearTimeout(combatMessageTimer.current)
+  }, [])
+
+  const onCombatAction = useCallback((action: Exclude<CombatAction, 'vehicle'>, yaw: number) => {
+    if (drivingRef.current) return
+    if (action === 'shoot') {
+      if (!weaponEquippedRef.current) {
+        showCombatMessage('Equip the pistol with Q first')
+        return
+      }
+      if (ammoRef.current <= 0) {
+        showCombatMessage('Out of ammo · press X to reload')
+        return
+      }
+      ammoRef.current -= 1
+      setAmmo(ammoRef.current)
+    }
+
+    const origin = pos.current.clone()
+    origin.y += 1.2
+    const hit = attackNearestTarget(origin, yaw, action)
+    setCombatAction(action)
+    setCombatActionTick(value => value + 1)
+    if (!hit) {
+      showCombatMessage(action === 'shoot' ? 'Miss' : 'No one in reach')
+    } else if (hit.kind === 'vehicle') {
+      showCombatMessage(hit.down ? 'Vehicle blasted' : action === 'shoot' ? 'Vehicle hit' : 'Vehicle struck')
+    } else {
+      showCombatMessage(hit.down ? 'Person down · respawns shortly' : hit.distance > 3 ? 'Person hit' : action === 'kick' ? 'Kick landed' : action === 'punch' ? 'Punch landed' : 'Person hit')
+    }
+  }, [showCombatMessage])
+
+  const onVehicleImpact = useCallback(() => {
+    const now = performance.now()
+    if (now - vehicleImpactTimer.current < 1000) return
+    vehicleImpactTimer.current = now
+    showCombatMessage('Pedestrian down · respawns shortly')
+  }, [showCombatMessage])
+
+  const toggleWeapon = useCallback(() => {
+    if (drivingRef.current) return
+    const next = !weaponEquippedRef.current
+    weaponEquippedRef.current = next
+    setWeaponEquipped(next)
+    showCombatMessage(next ? 'Pistol equipped · 12 rounds' : 'Pistol holstered')
+  }, [showCombatMessage])
+
+  const reloadWeapon = useCallback(() => {
+    if (!weaponEquippedRef.current) {
+      showCombatMessage('Equip the pistol with Q first')
+      return
+    }
+    ammoRef.current = 12
+    setAmmo(12)
+    showCombatMessage('Reloaded · 12 rounds')
+  }, [showCombatMessage])
 
   useEffect(() => {
     const timer = window.setInterval(
@@ -1614,6 +1852,9 @@ export default function App() {
       if (e.code === 'KeyV') {
         setCameraMode(v => (v + 1) % 4)
       }
+
+      if (e.code === 'KeyQ' && !e.repeat) toggleWeapon()
+      if (e.code === 'KeyX' && !e.repeat) reloadWeapon()
       
       if (e.code === 'KeyC') {
         setCameraMode(1)
@@ -1665,7 +1906,7 @@ export default function App() {
 
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
-  }, [nearbyLandmark, activeModal, turbanStudioOpen, postcardOpen, garageOpen, interactWithLandmark, setModal, isDancing, setIsDancing, openShop, closeShop, toggleStudio, toggleElanteMall, enterVehicle])
+  }, [nearbyLandmark, activeModal, turbanStudioOpen, postcardOpen, garageOpen, interactWithLandmark, setModal, isDancing, setIsDancing, openShop, closeShop, toggleStudio, toggleElanteMall, enterVehicle, toggleWeapon, reloadWeapon])
 
   const setDestination = useCallback((p: THREE.Vector3) => {
     waypointRef.current = p
@@ -1736,6 +1977,11 @@ export default function App() {
         onYawChange={setPlayerYaw}
         touchKeys={touchKeys}
         vehicleId={vehicleId}
+        weaponEquipped={weaponEquipped}
+        combatAction={combatAction}
+        combatActionTick={combatActionTick}
+        onCombatAction={onCombatAction}
+        onVehicleImpact={onVehicleImpact}
       />
 
       <div className="crosshair">
@@ -1983,6 +2229,13 @@ export default function App() {
         onSetWaypoint={setDestination}
       />
 
+      {!driving && (weaponEquipped || combatMessage) && (
+        <div className="combat-hud" aria-live="polite">
+          {weaponEquipped && <span>PISTOL <b>{ammo}/12</b></span>}
+          {combatMessage && <small>{combatMessage}</small>}
+        </div>
+      )}
+
       <div className="mobile-controls" aria-label="Touch game controls">
         <span className="touch-look-hint">DRAG THE SCENE TO LOOK</span>
         <div className="touch-dpad" aria-label="Move or steer">
@@ -2007,6 +2260,15 @@ export default function App() {
             <>
               <TouchHoldButton label="Sprint" code="ShiftLeft" touchKeys={touchKeys}>RUN</TouchHoldButton>
               <TouchHoldButton label="Jump" code="Space" touchKeys={touchKeys}>JUMP</TouchHoldButton>
+              <button type="button" className="touch-action" onClick={toggleWeapon}>{weaponEquipped ? 'HOLSTER' : 'PISTOL'}</button>
+              <button type="button" className="touch-action" onClick={() => onCombatAction('punch', playerYaw)}>PUNCH</button>
+              <button type="button" className="touch-action" onClick={() => onCombatAction('kick', playerYaw)}>KICK</button>
+              {weaponEquipped && (
+                <>
+                  <button type="button" className="touch-action touch-action-primary" onClick={() => onCombatAction('shoot', playerYaw)}>FIRE · {ammo}</button>
+                  <button type="button" className="touch-action" onClick={reloadWeapon}>RELOAD</button>
+                </>
+              )}
             </>
           )}
           {nearbyLandmark && (
@@ -2042,11 +2304,14 @@ export default function App() {
       <footer className="bottom-bar">
         <div className="controls-badge-group">
           <span className="ctrl-tag"><kbd>W A S D</kbd> {driving ? 'DRIVE' : 'MOVE'}</span>
-          <span className="ctrl-tag"><kbd>SHIFT</kbd> SPRINT</span>
-          <span className="ctrl-tag"><kbd>SPACE</kbd> JUMP</span>
+          {!driving && <span className="ctrl-tag"><kbd>SHIFT</kbd> SPRINT</span>}
+          {!driving && <span className="ctrl-tag"><kbd>SPACE</kbd> JUMP</span>}
           <span className="ctrl-tag"><kbd>E</kbd> INTERACT</span>
           <span className="ctrl-tag"><kbd>F</kbd> CAR</span>
           {driving && <span className="ctrl-tag"><kbd>H</kbd> HORN</span>}
+          {!driving && <span className="ctrl-tag"><kbd>Q</kbd> {weaponEquipped ? `PISTOL · ${ammo}` : 'WEAPON'}</span>}
+          {!driving && <span className="ctrl-tag"><kbd>J / K</kbd> PUNCH / KICK</span>}
+          {!driving && weaponEquipped && <span className="ctrl-tag"><kbd>R / CLICK</kbd> FIRE · <kbd>X</kbd> RELOAD</span>}
           <span className="ctrl-tag"><kbd>V</kbd> CAMERA ({cameraMode === 0 ? '3RD' : cameraMode === 1 ? 'PORTRAIT' : cameraMode === 2 ? '1ST' : 'DRONE'})</span>
           <span className="ctrl-tag"><kbd>ESC</kbd> CLOSE / PAUSE</span>
         </div>
