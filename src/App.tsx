@@ -31,7 +31,7 @@ import { CharacterStudioModal } from './components/CharacterStudioModal'
 import { ElanteMallModal } from './components/ElanteMallModal'
 import { PunjabiRadio } from './components/PunjabiRadio'
 import { VehicleModel } from './components/VehicleModel'
-import { VEHICLES, type VehicleId, type VehicleSpec } from './components/vehicleCatalog'
+import { REQUESTED_MODELS_PENDING, VEHICLES, type VehicleId, type VehicleSpec } from './components/vehicleCatalog'
 
 const origin: Point = [30.74105, 76.77902]
 type Point = [number, number]
@@ -762,17 +762,9 @@ function Car({
   vehicleId: VehicleId
 }) {
   const car = useRef<THREE.Group>(null)
-  const wheels = useRef<THREE.Object3D[]>([])
+  const wheelRotationDelta = useRef(0)
   const last = useRef(new THREE.Vector3(position.current.x, 0, position.current.z))
   const vehicleSpec = VEHICLES[vehicleId]
-
-  useEffect(() => {
-    const found: THREE.Object3D[] = []
-    car.current?.traverse(node => {
-      if (node.name.startsWith('wheel_') && !node.name.includes('spare')) found.push(node)
-    })
-    wheels.current = found
-  }, [vehicleId])
 
   useEffect(() => () => removeMovingObstacle('player-car'), [])
 
@@ -780,10 +772,11 @@ function Car({
     if (driving) {
       const p = position.current, dx = p.x - last.current.x, dz = p.z - last.current.z
       const signed = dx * Math.sin(p.y) + dz * Math.cos(p.y)
-      for (const wheel of wheels.current) wheel.rotation.x += signed / 0.3
+      wheelRotationDelta.current = signed / 0.3
       last.current.set(p.x, 0, p.z)
       carPosition.current.set(p.x, p.y, p.z)
     } else {
+      wheelRotationDelta.current = 0
       last.current.set(carPosition.current.x, 0, carPosition.current.z)
     }
     if (car.current) {
@@ -795,15 +788,15 @@ function Car({
 
   return (
     <group ref={car} position={[44, 0, -48]} onClick={onEnter} userData={{ sector17CollisionIgnore: true }}>
-      <VehicleModel vehicleId={vehicleId} />
+      <VehicleModel vehicleId={vehicleId} wheelRotationDelta={wheelRotationDelta} />
       {/* Car Headlights & Beam */}
       {night && (
-        <group position={[0, 0.6, 2.0]}>
+        <group position={[0, vehicleSpec.height * 0.43, vehicleSpec.length * 0.49]}>
           <pointLight color="#fff3cc" intensity={25} distance={15} />
            
           <spotLight
-            position={[-0.65, 0, 0]}
-            target-position={[-0.65, -0.5, 18]}
+            position={[-vehicleSpec.width * 0.34, 0, 0]}
+            target-position={[-vehicleSpec.width * 0.34, -vehicleSpec.height * 0.3, vehicleSpec.length * 3.2]}
             angle={0.4}
             penumbra={0.3}
             intensity={45}
@@ -811,8 +804,8 @@ function Car({
             color="#fff8db"
           />
           <spotLight
-            position={[0.65, 0, 0]}
-            target-position={[0.65, -0.5, 18]}
+            position={[vehicleSpec.width * 0.34, 0, 0]}
+            target-position={[vehicleSpec.width * 0.34, -vehicleSpec.height * 0.3, vehicleSpec.length * 3.2]}
             angle={0.4}
             penumbra={0.3}
             intensity={45}
@@ -1917,29 +1910,35 @@ export default function App() {
               <div>
                 <span className="garage-eyebrow">SECTOR 17 · YOUR GARAGE</span>
                 <h2 id="vehicle-garage-title">Choose your ride</h2>
-                <p>Choose a ride to bring it here and start driving. Selections while driving switch the car in place.</p>
+                <p>Each driveable option uses a real 3D model of the named car, with its creator credited below.</p>
               </div>
               <button type="button" className="garage-close" onClick={() => setGarageOpen(false)} aria-label="Close garage">×</button>
             </div>
             <div className="vehicle-grid">
               {(Object.values(VEHICLES) as VehicleSpec[]).map(vehicle => (
-                <button
-                  key={vehicle.id}
-                  type="button"
-                  className={`vehicle-card ${vehicleId === vehicle.id ? 'selected' : ''}`}
-                  aria-pressed={vehicleId === vehicle.id}
-                  onClick={() => chooseVehicle(vehicle)}
-                >
-                  <span className="vehicle-swatch" style={{ background: vehicle.paint }} />
-                  <span className="vehicle-card-copy">
-                    <strong>{vehicle.name}</strong>
-                    <small>{vehicle.category}</small>
-                    <small>Top speed · {Math.round(vehicle.topSpeed * 3.6)} km/h</small>
-                  </span>
-                  <span className="vehicle-select-state">{vehicleId === vehicle.id && driving ? 'DRIVING' : 'DRIVE NOW'}</span>
-                </button>
+                <div className="vehicle-option" key={vehicle.id}>
+                  <button
+                    type="button"
+                    className={`vehicle-card ${vehicleId === vehicle.id ? 'selected' : ''}`}
+                    aria-pressed={vehicleId === vehicle.id}
+                    onClick={() => chooseVehicle(vehicle)}
+                  >
+                    <span className="vehicle-card-copy">
+                      <strong>{vehicle.name}</strong>
+                      <small>{vehicle.category}</small>
+                      <small>Top speed · {Math.round(vehicle.topSpeed * 3.6)} km/h</small>
+                    </span>
+                    <span className="vehicle-select-state">{vehicleId === vehicle.id && driving ? 'DRIVING' : 'DRIVE NOW'}</span>
+                  </button>
+                  <a className="vehicle-credit" href={vehicle.sourceUrl} target="_blank" rel="noreferrer">
+                    3D model: {vehicle.sourceTitle} · {vehicle.sourceAuthor} · CC BY 4.0
+                  </a>
+                </div>
               ))}
             </div>
+            <p className="vehicle-pending-note">
+              Still sourcing authentic models for: {REQUESTED_MODELS_PENDING.join(' · ')}. These are not replaced with generic car shapes.
+            </p>
           </section>
         </div>
       )}

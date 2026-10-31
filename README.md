@@ -1,6 +1,6 @@
 # Chandigarh Sector 17 — 3D Browser Game
 
-A single-player, browser-based 3D exploration game set in a stylized, playable reconstruction of Chandigarh's Sector 17 plaza. Walk around the city centre, explore its landmarks and underpass, interact with shops, and drive a sedan. The project uses mapped OpenStreetMap roads and building footprints with hand-built game scenery.
+A single-player, browser-based 3D exploration game set in a stylized, playable reconstruction of Chandigarh's Sector 17 plaza. Walk around the city centre, explore its landmarks and underpass, interact with shops, and drive licensed 3D vehicle models. The project uses mapped OpenStreetMap roads and building footprints with hand-built game scenery.
 
 This is a game-scale reconstruction, not a 1:1 surveyed model or photogrammetry scan. Some landmarks, shop fronts, people, and traffic are authored or procedural representations.
 
@@ -46,7 +46,7 @@ Additional interface buttons open character customization, shopping, and photo/p
 
 - Walkable plaza with keyboard movement, jumping, camera follow, and waypoint navigation.
 - Building-footprint collision from mapped OSM geometry, broad-phase collision for authored scene meshes, and moving collision bounds for pedestrians and traffic. Movement slides along clear wall edges.
-- Selectable driveable garage with Creta, Thar, Scorpio-N, WagonR, Venue, BMW X5, Jeep Wrangler, Fortuner, Lamborghini Urus, and a classic sedan. Each option changes the car silhouette, paint, collision bounds, acceleration, steering, and top speed. The newer car shapes are procedural stylized models, not manufacturer-provided 3D assets.
+- Selectable driveable garage using credited 3D models for Hyundai Creta, Suzuki Swift (2022), Toyota Fortuner, Jeep Wrangler, BMW X5 M Competition, Lamborghini Urus, and Ferrari F8 Tributo. Vehicle dimensions, handling, lighting, and collision bounds are fitted to each model. Mahindra Thar, Scorpio-N, Maruti Suzuki WagonR, and Hyundai Venue remain unavailable until authentic, redistributable models are sourced; the garage does not substitute generic car shapes for them.
 - Moving road traffic and scooters.
 - Day, sunset, and night scene modes; Sector 17 landmarks, shopfronts, plaza pedestrians, lighting, fountain, and an underground passage reconstruction.
 - Character customization, simple interactions, procedural audio, and postcard capture.
@@ -68,4 +68,4 @@ Additional interface buttons open character customization, shopping, and photo/p
 
 The map data is derived from OpenStreetMap contributors and is available under the [Open Database License (ODbL)](https://www.openstreetmap.org/copyright). The local map is centered near Sector 17 City Centre (approximately 30.74105° N, 76.77902° E). Preserve the attribution and ODbL notice when redistributing derived map data.
 
-The 3D models are included in `public/models/`. Their source/license details should be retained with the asset files when known; this project does not claim affiliation with vehicle manufacturers or real businesses shown as shop references.
+The 3D models are included in `public/models/`. Vehicle model sources and required CC BY 4.0 credits are listed in [`public/models/vehicles/CREDITS.md`](public/models/vehicles/CREDITS.md). The source files are redistributed from the `pedrosoandre/carros` collection; that collection simplified, pruned, and meshopt-compressed its Sketchfab models for web delivery. This game normalizes their orientation and scale at runtime. This project does not claim affiliation with vehicle manufacturers or real businesses shown as shop references.
