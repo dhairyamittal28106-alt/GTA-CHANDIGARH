@@ -36,7 +36,7 @@ export function SceneObstacleCapture() {
     scanClock.current += dt
     
     
-    if (scanClock.current < (elapsed.current < 18 ? 1.25 : 12)) return
+    if (scanClock.current < (elapsed.current < 18 ? 2.5 : 45)) return
     scanClock.current = 0
     scene.updateMatrixWorld(true)
 

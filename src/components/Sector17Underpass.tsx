@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useMemo, useRef } from 'react'
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { DynamicCharacter } from './DynamicCharacter'
@@ -17,8 +17,10 @@ interface Sector17UnderpassProps {
 
 
 
-function PassageVisitor({ index, baseConfig }: { index: number; baseConfig: CharacterConfig }) {
+function PassageVisitor({ index, baseConfig, playerPos }: { index: number; baseConfig: CharacterConfig; playerPos?: { current: THREE.Vector3 } }) {
   const actor = useRef<THREE.Group>(null)
+  const active = useRef(false)
+  const [nearby, setNearby] = useState(false)
   useEffect(() => () => removeMovingObstacle(`passage-pedestrian-${index}`), [index])
   const motion = useMemo(() => ({ current: 'walk' as const }), [])
   const config = useMemo<CharacterConfig>(() => ({
@@ -31,7 +33,26 @@ function PassageVisitor({ index, baseConfig }: { index: number; baseConfig: Char
   }), [baseConfig, index])
 
   useFrame(({ clock }) => {
-    if (!actor.current) return
+    const player = playerPos?.current
+    if (player) {
+      const dx = player.x + 18
+      const dz = player.z + 54
+      const distanceSq = dx * dx + dz * dz
+      if (!active.current && distanceSq < 48 * 48) {
+        active.current = true
+        setNearby(true)
+      } else if (active.current && distanceSq > 58 * 58) {
+        active.current = false
+        setNearby(false)
+        removeMovingObstacle(`passage-pedestrian-${index}`)
+        return
+      }
+    } else if (!active.current) {
+      active.current = true
+      setNearby(true)
+    }
+
+    if (!active.current || !actor.current) return
     const phase = clock.elapsedTime * 0.075 + index * 0.173
     const z = THREE.MathUtils.euclideanModulo(phase * 36 + index * 5.8, 48) - 24
     const side = index % 2 === 0 ? -1 : 1
@@ -41,10 +62,12 @@ function PassageVisitor({ index, baseConfig }: { index: number; baseConfig: Char
     setMovingObstacle(`passage-pedestrian-${index}`, x, z, 0.58)
   })
 
+  if (!nearby) return null
+
   return (
     <group ref={actor} userData={{ sector17CollisionIgnore: true }}>
       <Suspense fallback={null}>
-        <DynamicCharacter motion={motion} velocity={1.05} config={config} />
+        <DynamicCharacter motion={motion} velocity={1.05} config={config} castShadow={false} />
       </Suspense>
     </group>
   )
@@ -78,7 +101,7 @@ function WallArt({ z, title, color }: { z: number; title: string; color: string 
   )
 }
 
-export function Sector17Underpass({ night }: Sector17UnderpassProps) {
+export function Sector17Underpass({ night, playerPos }: Sector17UnderpassProps) {
   const baseConfig = useCharacterShopStore(state => state.charConfig)
   const visitors = useMemo(() => Array.from({ length: 6 }, (_, index) => index), [])
   const lights = useMemo(() => Array.from({ length: 8 }, (_, index) => -24 + index * 6.8), [])
@@ -178,7 +201,7 @@ export function Sector17Underpass({ night }: Sector17UnderpassProps) {
       ))}
 
        
-      {visitors.map(index => <PassageVisitor key={index} index={index} baseConfig={baseConfig} />)}
+      {visitors.map(index => <PassageVisitor key={index} index={index} baseConfig={baseConfig} playerPos={playerPos} />)}
     </group>
   )
 }

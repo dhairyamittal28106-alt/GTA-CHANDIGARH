@@ -823,7 +823,7 @@ function Car({
 }
 
 const trafficColors = ['#171d25', '#faf7ef', '#c9222c', '#e4b900', '#243c69', '#8a9095']
-const trafficVehicleIds: VehicleId[] = ['fortuner', 'jeep-wrangler', 'lamborghini-urus', 'suzuki-swift']
+const trafficVehicleIds: VehicleId[] = ['fortuner', 'jeep-wrangler', 'lamborghini-urus']
 function TrafficVehicle({ index }: { index: number }) {
   const ref = useRef<THREE.Group>(null)
   const wheelRotationDelta = useRef(0)
@@ -865,7 +865,7 @@ function TrafficVehicle({ index }: { index: number }) {
           ))}
         </>
       ) : (
-        <VehicleModel vehicleId={vehicleId} wheelRotationDelta={wheelRotationDelta} />
+        <VehicleModel vehicleId={vehicleId} wheelRotationDelta={wheelRotationDelta} castShadow={false} />
       )}
     </group>
   )
@@ -1170,6 +1170,7 @@ function Player({
           velocity={Math.abs(vel.current)}
           isDancing={isDancing}
           config={charConfig}
+          enabled={!driving}
         />
       </Suspense>
     </group>
@@ -1281,6 +1282,7 @@ function CrowdWalker({ index }: { index: number }) {
           motion={motion}
           velocity={1.8}
           config={walkerConfig}
+          castShadow={false}
         />
       </Suspense>
     </group>
@@ -1368,7 +1370,7 @@ function DayNightRig({ timeOfDay }: { timeOfDay: TimeOfDay }) {
       {timeOfDay !== 'night' ? (
         <Sky sunPosition={cfg.sunPos} turbidity={timeOfDay === 'sunset' ? 6 : 1.8} rayleigh={timeOfDay === 'sunset' ? 4 : 2.6} />
       ) : (
-        <Stars radius={120} depth={50} count={700} factor={3} saturation={0} fade speed={0.15} />
+        <Stars radius={120} depth={50} count={350} factor={3} saturation={0} fade speed={0.15} />
       )}
       <ambientLight ref={ambient} intensity={0.3} />
       <hemisphereLight ref={hemi} args={['#c9e8fa', '#566b47', 0.72]} />
@@ -1378,8 +1380,8 @@ function DayNightRig({ timeOfDay }: { timeOfDay: TimeOfDay }) {
         color="#fff4e0"
         intensity={2.8}
         castShadow
-        shadow-mapSize-width={2048}
-        shadow-mapSize-height={2048}
+        shadow-mapSize-width={1024}
+        shadow-mapSize-height={1024}
       />
     </>
   )
@@ -1422,7 +1424,7 @@ const Scene = memo(function Scene({
   return (
     <Canvas
       camera={{ position: [0, 4.15, -30], fov: 62 }}
-      dpr={[1, 1.25]}
+      dpr={[1, 1.1]}
       gl={{
         antialias: true,
         powerPreference: 'high-performance',

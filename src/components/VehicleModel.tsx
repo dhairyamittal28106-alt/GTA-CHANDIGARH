@@ -7,9 +7,10 @@ import { VEHICLES, type VehicleId, type VehicleSpec } from './vehicleCatalog'
 type VehicleModelProps = {
   vehicleId: VehicleId
   wheelRotationDelta: RefObject<number>
+  castShadow?: boolean
 }
 
-function buildVehicleModel(scene: THREE.Group, spec: VehicleSpec) {
+function buildVehicleModel(scene: THREE.Group, spec: VehicleSpec, castShadow: boolean) {
   const root = new THREE.Group()
   const model = scene.clone(true)
   model.rotation.y += spec.modelRotationY
@@ -31,8 +32,8 @@ function buildVehicleModel(scene: THREE.Group, spec: VehicleSpec) {
   const wheels: THREE.Object3D[] = []
   model.traverse(node => {
     if (node instanceof THREE.Mesh) {
-      node.castShadow = true
-      node.receiveShadow = true
+      node.castShadow = castShadow
+      node.receiveShadow = castShadow
     }
 
     const isJeepWheel = spec.id === 'jeep-wrangler' && /^(FRW|FLW|RLW|RRW)$/i.test(node.name)
@@ -59,14 +60,16 @@ function LoadedVehicle({
   vehicleId,
   onReady,
   wheelRotationDelta,
+  castShadow,
 }: {
   vehicleId: VehicleId
   onReady: (id: VehicleId) => void
   wheelRotationDelta: RefObject<number>
+  castShadow: boolean
 }) {
   const spec = VEHICLES[vehicleId]
   const { scene } = useGLTF(spec.modelPath)
-  const vehicle = useMemo(() => buildVehicleModel(scene, spec), [scene, spec])
+  const vehicle = useMemo(() => buildVehicleModel(scene, spec, castShadow), [scene, spec, castShadow])
 
   useEffect(() => {
     onReady(vehicleId)
@@ -80,7 +83,7 @@ function LoadedVehicle({
   )
 }
 
-export function VehicleModel({ vehicleId, wheelRotationDelta }: VehicleModelProps) {
+export function VehicleModel({ vehicleId, wheelRotationDelta, castShadow = true }: VehicleModelProps) {
   const [displayedVehicleId, setDisplayedVehicleId] = useState(vehicleId)
   const keepDisplayedVehicle = useCallback((id: VehicleId) => setDisplayedVehicleId(id), [])
 
@@ -92,6 +95,7 @@ export function VehicleModel({ vehicleId, wheelRotationDelta }: VehicleModelProp
             vehicleId={displayedVehicleId}
             onReady={keepDisplayedVehicle}
             wheelRotationDelta={wheelRotationDelta}
+            castShadow={castShadow}
           />
         )
       )}
@@ -100,6 +104,7 @@ export function VehicleModel({ vehicleId, wheelRotationDelta }: VehicleModelProp
         vehicleId={vehicleId}
         onReady={keepDisplayedVehicle}
         wheelRotationDelta={wheelRotationDelta}
+        castShadow={castShadow}
       />
     </Suspense>
   )

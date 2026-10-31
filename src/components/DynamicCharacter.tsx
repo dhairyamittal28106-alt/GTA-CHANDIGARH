@@ -11,6 +11,8 @@ interface DynamicCharacterProps {
   velocity?: number
   isDancing?: boolean
   config: CharacterConfig
+  castShadow?: boolean
+  enabled?: boolean
 }
 
 
@@ -257,6 +259,8 @@ export function DynamicCharacter({
   velocity = 0,
   isDancing = false,
   config,
+  castShadow = true,
+  enabled = true,
 }: DynamicCharacterProps) {
   const modelUrl =
     config.archetype === 'girl'
@@ -314,12 +318,8 @@ export function DynamicCharacter({
     model.traverse((node) => {
       if ((node as THREE.Mesh).isMesh) {
         const mesh = node as THREE.Mesh
-        if (mesh.material) {
-          
-          mesh.material = (mesh.material as THREE.Material).clone()
-          mesh.castShadow = true
-          mesh.receiveShadow = true
-        }
+        mesh.castShadow = castShadow
+        mesh.receiveShadow = castShadow
       }
       if (node.name === 'Head') headBoneRef.current = node
       if (node.name === 'RightHand') rightHandBoneRef.current = node
@@ -337,9 +337,17 @@ export function DynamicCharacter({
       .forEach((bone) => {
         if (bone) gaitBase.current.set(bone, { x: bone.rotation.x, y: bone.position.y, z: bone.rotation.z })
       })
-  }, [model])
+    root.current?.traverse((node) => {
+      if ((node as THREE.Mesh).isMesh) {
+        const mesh = node as THREE.Mesh
+        mesh.castShadow = castShadow
+        mesh.receiveShadow = castShadow
+      }
+    })
+  }, [castShadow, config, model])
 
   useFrame(({ clock }, dt) => {
+    if (!enabled) return
     dt = Math.min(dt, 0.05)
     if (animationBindingsHealthy.current) {
       try {

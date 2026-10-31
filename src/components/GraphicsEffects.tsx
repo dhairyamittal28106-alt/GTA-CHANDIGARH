@@ -34,14 +34,14 @@ export function GraphicsEffects({ timeOfDay }: GraphicsEffectsProps) {
         scale={120}
         blur={2.0}
         far={6}
-        resolution={512}
+        resolution={256}
         frames={1}
         color="#151d19"
       />
 
        
       <Sparkles
-        count={85}
+        count={50}
         scale={[18, 5, 18]}
         position={[0, 2.2, 0]}
         size={2.8}
@@ -50,13 +50,14 @@ export function GraphicsEffects({ timeOfDay }: GraphicsEffectsProps) {
       />
 
        
-      <EffectComposer multisampling={0}>
+      <EffectComposer multisampling={0} resolutionScale={0.82}>
          
         <Bloom
           luminanceThreshold={0.8}
           mipmapBlur
           intensity={bloomIntensity}
           radius={0.65}
+          resolutionScale={0.75}
         />
 
          
