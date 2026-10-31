@@ -46,8 +46,8 @@ Additional interface buttons open character customization, shopping, and photo/p
 
 - Walkable plaza with keyboard movement, jumping, camera follow, and waypoint navigation.
 - Building-footprint collision from mapped OSM geometry, broad-phase collision for authored scene meshes, and moving collision bounds for pedestrians and traffic. Movement slides along clear wall edges.
-- Selectable driveable garage using credited 3D models for Hyundai Creta, Suzuki Swift (2022), Toyota Fortuner, Jeep Wrangler, BMW X5 M Competition, Lamborghini Urus, and Ferrari F8 Tributo. Vehicle dimensions, handling, lighting, and collision bounds are fitted to each model. Mahindra Thar, Scorpio-N, Maruti Suzuki WagonR, and Hyundai Venue remain unavailable until authentic, redistributable models are sourced; the garage does not substitute generic car shapes for them.
-- Moving road traffic and scooters.
+- Selectable driveable garage using credited 3D models for Hyundai Creta, Suzuki Swift (2022), Toyota Fortuner, Jeep Wrangler, BMW X5 M Competition, Lamborghini Urus, and Ferrari F8 Tributo. Vehicle dimensions, handling, lighting, and collision bounds are fitted to each model. Mahindra Thar, Scorpio-N, Maruti Suzuki WagonR, Maruti Suzuki Alto 800, and Hyundai Venue remain unavailable until authentic, redistributable models are sourced; the garage does not substitute generic car shapes for them.
+- Moving road traffic using the credited Fortuner, Wrangler, Urus, and Swift models, alongside scooters.
 - Day, sunset, and night scene modes; Sector 17 landmarks, shopfronts, plaza pedestrians, lighting, fountain, and an underground passage reconstruction.
 - Character customization, simple interactions, procedural audio, and postcard capture.
 - Score Club entry and exit markers: step onto the pink circle outside or inside to move between the street and club floor.

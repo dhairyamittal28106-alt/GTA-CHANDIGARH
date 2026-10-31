@@ -823,17 +823,26 @@ function Car({
 }
 
 const trafficColors = ['#171d25', '#faf7ef', '#c9222c', '#e4b900', '#243c69', '#8a9095']
+const trafficVehicleIds: VehicleId[] = ['fortuner', 'jeep-wrangler', 'lamborghini-urus', 'suzuki-swift']
 function TrafficVehicle({ index }: { index: number }) {
-  const ref = useRef<THREE.Group>(null), scooter = index >= 4, color = trafficColors[index % trafficColors.length]
+  const ref = useRef<THREE.Group>(null)
+  const wheelRotationDelta = useRef(0)
+  const previousX = useRef<number | null>(null)
+  const scooter = index >= 4, color = trafficColors[index % trafficColors.length]
+  const vehicleId = trafficVehicleIds[index % trafficVehicleIds.length]
+  const vehicleSpec = VEHICLES[vehicleId]
   useEffect(() => () => removeMovingObstacle(`traffic-${index}`), [index])
   useFrame(({ clock }) => {
     if (!ref.current) return
     const dir = index % 2 ? 1 : -1
     const z = (index % 2 ? 1 : -1) * (index < 4 ? 88 : 103)
     const x = THREE.MathUtils.euclideanModulo(clock.elapsedTime * (index % 3 === 0 ? 8 : 5) * dir + index * 48 + 130, 260) - 130
+    const deltaX = previousX.current === null ? 0 : x - previousX.current
+    wheelRotationDelta.current = Math.abs(deltaX) > 20 ? 0 : deltaX / 0.34
+    previousX.current = x
     ref.current.position.set(x, 0.05, z)
     ref.current.rotation.y = dir > 0 ? Math.PI / 2 : -Math.PI / 2
-    setMovingObstacle(`traffic-${index}`, x, z, scooter ? 0.8 : 1.65)
+    setMovingObstacle(`traffic-${index}`, x, z, scooter ? 0.8 : Math.max(vehicleSpec.width * 0.7, vehicleSpec.length * 0.34))
   })
 
   return (
@@ -856,32 +865,7 @@ function TrafficVehicle({ index }: { index: number }) {
           ))}
         </>
       ) : (
-        <>
-          <mesh position={[0, 0.62, 0]} castShadow>
-            <boxGeometry args={[index === 1 ? 1.9 : 1.82, index === 1 ? 0.68 : 0.56, index === 3 ? 3.9 : 4.25]} />
-            <meshStandardMaterial color={color} metalness={index === 0 || index === 4 ? 0.72 : 0.4} roughness={0.28} />
-          </mesh>
-          <mesh position={[0, index === 1 ? 1.22 : 1.08, -0.1]} castShadow>
-            <boxGeometry args={[index === 1 ? 1.68 : 1.62, index === 3 ? 0.4 : index === 1 ? 0.66 : 0.5, index === 3 ? 1.5 : index === 2 ? 1.82 : 2.05]} />
-            <meshStandardMaterial color={index === 3 ? '#171b20' : '#26313a'} metalness={0.32} roughness={0.22} />
-          </mesh>
-          <mesh position={[0, 0.91, 2.14]}>
-            <boxGeometry args={[1.2, 0.18, 0.06]} />
-            <meshStandardMaterial color="#fff2c6" emissive="#fff2c6" emissiveIntensity={1.7} />
-          </mesh>
-          <mesh position={[0, 0.88, -2.14]}>
-            <boxGeometry args={[1.2, 0.17, 0.06]} />
-            <meshStandardMaterial color="#d43325" emissive="#bf180f" emissiveIntensity={0.7} />
-          </mesh>
-          {[-0.92, 0.92].flatMap(x =>
-            [-1.35, 1.35].map(z => (
-              <mesh key={`${x}-${z}`} position={[x, 0.38, z]} rotation={[0, 0, Math.PI / 2]}>
-                <cylinderGeometry args={[0.34, 0.34, 0.18, 12]} />
-                <meshStandardMaterial color="#111" roughness={0.95} />
-              </mesh>
-            ))
-          )}
-        </>
+        <VehicleModel vehicleId={vehicleId} wheelRotationDelta={wheelRotationDelta} />
       )}
     </group>
   )

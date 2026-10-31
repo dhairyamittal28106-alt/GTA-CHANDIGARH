@@ -87,11 +87,13 @@ export function VehicleModel({ vehicleId, wheelRotationDelta }: VehicleModelProp
   return (
     <Suspense
       fallback={(
-        <LoadedVehicle
-          vehicleId={displayedVehicleId}
-          onReady={keepDisplayedVehicle}
-          wheelRotationDelta={wheelRotationDelta}
-        />
+        displayedVehicleId === vehicleId ? null : (
+          <LoadedVehicle
+            vehicleId={displayedVehicleId}
+            onReady={keepDisplayedVehicle}
+            wheelRotationDelta={wheelRotationDelta}
+          />
+        )
       )}
     >
       <LoadedVehicle
