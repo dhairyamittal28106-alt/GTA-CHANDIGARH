@@ -757,13 +757,35 @@ html, body, #root {
   color: #f6d28c;
   font: 700 10px var(--font-mono);
   letter-spacing: 0.06em;
-  pointer-events: none;
+  pointer-events: auto;
   backdrop-filter: blur(10px);
 }
 
 .combat-hud b {
   margin-left: 8px;
   color: #fff;
+}
+
+.combat-hud-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.combat-hud-actions button {
+  min-height: 30px;
+  padding: 0 7px;
+  border: 1px solid rgba(245, 178, 73, 0.45);
+  border-radius: 4px;
+  background: rgba(36, 43, 45, 0.94);
+  color: #f8e6c3;
+  font: 700 8px var(--font-mono);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+.combat-hud-actions button:hover {
+  border-color: #ffd278;
+  background: rgba(91, 62, 18, 0.96);
 }
 
 .combat-hud small {
@@ -876,6 +898,7 @@ html, body, #root {
   .combat-hud {
     top: max(96px, calc(env(safe-area-inset-top) + 86px));
     left: max(10px, env(safe-area-inset-left));
+    display: none;
   }
 
   .top-nav {

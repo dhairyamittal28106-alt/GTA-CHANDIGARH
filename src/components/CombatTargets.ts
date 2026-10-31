@@ -1,5 +1,4 @@
 import * as THREE from 'three'
-import { hitsSceneObstacle } from './CollisionWorld'
 
 export type CombatAction = 'punch' | 'kick' | 'shoot' | 'vehicle'
 export type CombatTargetKind = 'pedestrian' | 'vehicle'
@@ -25,45 +24,35 @@ export function registerCombatTarget(target: CombatTarget) {
 }
 
 export function attackNearestTarget(origin: THREE.Vector3, yaw: number, action: Exclude<CombatAction, 'vehicle'>) {
-  const range = action === 'shoot' ? 55 : action === 'kick' ? 2.9 : 2.35
-  const minimumDot = action === 'shoot' ? 0.992 : action === 'kick' ? 0.2 : 0.42
+  const range = action === 'shoot' ? 70 : action === 'kick' ? 4.3 : 3.5
+  const minimumDot = action === 'shoot' ? 0.55 : -0.25
   const forwardX = Math.sin(yaw)
   const forwardZ = Math.cos(yaw)
-  let nearest: CombatTarget | null = null
-  let nearestDistance = range
+  const candidates: Array<{ target: CombatTarget; distance: number }> = []
 
   for (const target of targets.values()) {
     target.getPosition(point)
     const dx = point.x - origin.x
     const dz = point.z - origin.z
     const distance = Math.hypot(dx, dz)
-    if (distance < 0.001 || distance > range + target.radius || distance > nearestDistance) continue
+    if (distance < 0.001 || distance > range + target.radius) continue
     const alignment = (dx * forwardX + dz * forwardZ) / distance
     if (alignment < minimumDot) continue
 
     if (action === 'shoot') {
       const lateral = Math.abs(dx * forwardZ - dz * forwardX)
-      if (lateral > target.radius + distance * 0.025) continue
-      let blocked = false
-      const steps = Math.ceil(distance / 1.25)
-      for (let step = 1; step < steps; step++) {
-        const progress = step / steps
-        if (hitsSceneObstacle(origin.x + dx * progress, origin.z + dz * progress, 0.18, target.id)) {
-          blocked = true
-          break
-        }
-      }
-      if (blocked) continue
+      if (lateral > target.radius + distance * 0.84) continue
     }
 
-    nearest = target
-    nearestDistance = distance
+    candidates.push({ target, distance })
   }
 
-  if (!nearest) return null
-  const result = nearest.receiveHit(action)
-  if (!result) return null
-  return { kind: nearest.kind, distance: nearestDistance, down: result === 'down' }
+  candidates.sort((a, b) => a.distance - b.distance)
+  for (const { target, distance } of candidates) {
+    const result = target.receiveHit(action)
+    if (result) return { kind: target.kind, distance, down: result === 'down' }
+  }
+  return null
 }
 
 export function hitPedestriansWithVehicle(position: THREE.Vector3, radius: number, speed: number) {

@@ -2229,10 +2229,19 @@ export default function App() {
         onSetWaypoint={setDestination}
       />
 
-      {!driving && (weaponEquipped || combatMessage) && (
+      {!driving && (
         <div className="combat-hud" aria-live="polite">
-          {weaponEquipped && <span>PISTOL <b>{ammo}/12</b></span>}
+          <span>COMBAT <b>{weaponEquipped ? `${ammo}/12` : 'READY'}</b></span>
+          <div className="combat-hud-actions">
+            <button type="button" onClick={() => onCombatAction('punch', playerYaw)}>PUNCH</button>
+            <button type="button" onClick={() => onCombatAction('kick', playerYaw)}>KICK</button>
+            <button type="button" onClick={weaponEquipped ? () => onCombatAction('shoot', playerYaw) : toggleWeapon}>
+              {weaponEquipped ? 'FIRE' : 'PISTOL'}
+            </button>
+            {weaponEquipped && <button type="button" onClick={reloadWeapon}>RELOAD</button>}
+          </div>
           {combatMessage && <small>{combatMessage}</small>}
+          <small>Face people and get close to punch or kick</small>
         </div>
       )}
 
