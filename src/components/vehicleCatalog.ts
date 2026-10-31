@@ -143,5 +143,6 @@ export const REQUESTED_MODELS_PENDING = [
   'Mahindra Thar',
   'Mahindra Scorpio-N',
   'Maruti Suzuki WagonR',
+  'Maruti Suzuki Alto 800',
   'Hyundai Venue',
 ]
